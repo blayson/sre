@@ -5,7 +5,7 @@ from app.blueprints.auth import RegisterView, LoginView, auth_bp
 from app.blueprints.reviews import ReviewView, ReviewListView, reviews_bp
 from app.base_view import BaseView
 
-routes_bp = Blueprint('routes', __name__, url_prefix=current_app.config['ROUTES_PREFIX'])
+routes_bp = Blueprint('routes', __name__, url_prefix=current_app.config['API_PREFIX'])
 
 # Routes map
 BP_VIEWS_MAP = {

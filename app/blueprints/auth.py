@@ -4,16 +4,15 @@ from webargs.flaskparser import use_kwargs
 from app.base_view import BaseView
 from app.exceptions import WrongPassword
 from app.models import User
-from app import db, LOGGER
+from app import DB, LOGGER
 from app.schemas import UserSchema, RegisterSchema, AuthSchema
 
-
-auth_bp = Blueprint('auth', __name__, url_prefix=current_app.config['AUTH_PREFIX'])
+auth_bp = Blueprint('auth', __name__, url_prefix=current_app.config['API_PREFIX'])
 
 
 class RegisterView(BaseView):
     """Handler for /auth/register endpoint"""
-    _endpoint_name = '/register'
+    _endpoint_name = '/auth/register'
     _name = 'register'
 
     @use_kwargs(UserSchema(only=('email', 'password'), partial=True))
@@ -31,8 +30,8 @@ class RegisterView(BaseView):
         """
         try:
             user = User(**kwargs)
-            db.session.add(user)
-            db.session.commit()
+            DB.session.add(user)
+            DB.session.commit()
             token = user.get_token()
             schema = AuthSchema()
         except Exception as e:
@@ -42,7 +41,7 @@ class RegisterView(BaseView):
 
 
 class LoginView(BaseView):
-    _endpoint_name = '/login'
+    _endpoint_name = '/auth/login'
     _name = 'login'
 
     @use_kwargs(UserSchema(only=('email', 'password'), partial=True))
@@ -67,6 +66,3 @@ class LoginView(BaseView):
             return {'msg': 'No user with this password'}, 404
         schema = AuthSchema()
         return jsonify(schema.dump({'token': token}))
-
-
-

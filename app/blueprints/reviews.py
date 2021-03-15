@@ -1,18 +1,18 @@
 from flask import Blueprint, jsonify, current_app
 
-from app import db
+from app import DB
 from app.base_view import BaseView
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from webargs.flaskparser import use_kwargs
 from app.schemas import ReviewSchema
 from app.models import Review
 
-reviews_bp = Blueprint('reviews', __name__, url_prefix=current_app.config['REVIEWS_PREFIX'])
+reviews_bp = Blueprint('reviews', __name__, url_prefix=current_app.config['API_PREFIX'])
 
 
 class ReviewView(BaseView):
     """Handler for /users/ endpoint"""
-    _endpoint_name = '/'
+    _endpoint_name = '/reviews/'
     _name = 'review'
     decorators = [jwt_required()]
 
@@ -37,8 +37,8 @@ class ReviewView(BaseView):
     def post(self, **kwargs):
         user_id = get_jwt_identity()
         review = Review(**kwargs, user_id=user_id)
-        db.session.add(review)
-        db.session.commit()
+        DB.session.add(review)
+        DB.session.commit()
         return jsonify({'msg': 'OK'}), 201
 
     def put(self, user_id):
@@ -54,7 +54,7 @@ class ReviewView(BaseView):
 
 class ReviewListView(BaseView):
     """Handler for /users endpoint"""
-    _endpoint_name = '/list'
+    _endpoint_name = '/reviews/list'
     _name = 'reviews'
     decorators = [jwt_required()]
 
@@ -63,4 +63,3 @@ class ReviewListView(BaseView):
             ---
             description: Get all users"""
         return jsonify({'data': [{'name': 'Andrii'}, {'name': 'Lena'}]}), 200
-

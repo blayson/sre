@@ -1,20 +1,6 @@
 version: '3'
 
 services:
-  sre_api:
-    container_name: sre-api
-    restart: always
-    build: .
-    command: python semantic_evaluator.py run -h 0.0.0.0
-    volumes:
-      - .:/code
-    ports:
-      - 5000:5000
-    env_file:
-      - ./.env
-    depends_on:
-      - sre_db
-
   sre_db:
     container_name: sre-database
     image: postgres

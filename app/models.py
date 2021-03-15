@@ -3,18 +3,18 @@ from datetime import datetime, timedelta
 from passlib.hash import bcrypt
 from flask_jwt_extended import create_access_token
 
-from app import db
+from app import DB
 from app.exceptions import WrongPassword
 
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), index=True)
-    email = db.Column(db.String(120), index=True, unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-    about_me = db.Column(db.String(240))
-    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
-    reviews = db.relationship('Review', backref='user', lazy=True)
+class User(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    name = DB.Column(DB.String(64), index=True)
+    email = DB.Column(DB.String(120), index=True, unique=True, nullable=False)
+    password = DB.Column(DB.String(128), nullable=False)
+    about_me = DB.Column(DB.String(240))
+    last_seen = DB.Column(DB.DateTime, default=datetime.utcnow)
+    reviews = DB.relationship('Review', backref='user', lazy=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.name)
@@ -39,7 +39,7 @@ class User(db.Model):
         return user
 
 
-class Review(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    changed = db.Column(db.Boolean)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+class Review(DB.Model):
+    id = DB.Column(DB.Integer, primary_key=True)
+    changed = DB.Column(DB.Boolean)
+    user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=False)

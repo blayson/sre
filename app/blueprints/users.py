@@ -7,12 +7,12 @@ from app.models import Review, User
 from app.schemas import ReviewSchema, UserSchema
 from webargs.flaskparser import use_kwargs, use_args
 
-users_bp = Blueprint('users', __name__, url_prefix=current_app.config['USERS_PREFIX'])
+users_bp = Blueprint('users', __name__, url_prefix=current_app.config['API_PREFIX'])
 
 
 class UserView(BaseView):
     """Handler for /users/<int:user_id> endpoint"""
-    _endpoint_name = '/'
+    _endpoint_name = '/users/'
     _name = 'user'
     decorators = [jwt_required()]
 
@@ -51,7 +51,7 @@ class UserView(BaseView):
 
 class UserListView(BaseView):
     """Handler for /users endpoint"""
-    _endpoint_name = '/list'
+    _endpoint_name = '/users/list'
     _name = 'users'
     decorators = [jwt_required()]
 
@@ -69,7 +69,7 @@ class UserListView(BaseView):
 
 
 class UserReviewsView(BaseView):
-    _endpoint_name = '/reviews'
+    _endpoint_name = '/users/reviews'
     _name = 'user_reviews'
     decorators = [jwt_required()]
 

@@ -5,14 +5,15 @@ from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy import create_engine
 # from sqlalchemy.ext.declarative import declarative_base
 # from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.exc import OperationalError
 
 from app.logger import setup_logger
 from config import Config
 from app.api_spec import spec
 
-migrate = Migrate()
-db = SQLAlchemy()
-jwt = JWTManager()
+MIGRATE = Migrate()
+DB = SQLAlchemy()
+JWT = JWTManager()
 
 LOGGER = setup_logger()
 
@@ -30,9 +31,9 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    jwt.init_app(app)
-    db.init_app(app)
-    migrate.init_app(app, db)
+    JWT.init_app(app)
+    DB.init_app(app)
+    MIGRATE.init_app(app, DB)
 
     with app.test_request_context():
         from .blueprints.routes import routes_bp
@@ -46,7 +47,6 @@ def create_app(config_class=Config):
         app.register_blueprint(routes_bp)
         app.register_blueprint(users_bp)
         app.register_blueprint(auth_bp)
-        app.register_blueprint(auth_bp)
         app.register_blueprint(reviews_bp)
         app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
@@ -58,7 +58,7 @@ def create_app(config_class=Config):
             view_fn = app.view_functions[fn_name]
             spec.path(view=view_fn)
 
-        db.create_all()
+        # DB.create_all()
 
     @app.route("/api/swagger.json")
     def create_swagger_spec():
@@ -66,8 +66,16 @@ def create_app(config_class=Config):
 
     @app.teardown_appcontext
     def shutdown_session(exception=None):
-        db.session.remove()
+        DB.session.remove()
 
+    # @app.before_request
+    # def _db_connect():
+    #     try:
+    #         DB.make_connector()
+    #     except OperationalError:
+    #         LOGGER.exception("Error occurred while connecting to database. %s", format_exc())
+    #         abort(503, "DB is not running")
+    #
     return app
 
 
