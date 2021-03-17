@@ -13,7 +13,7 @@ reviews_bp = Blueprint('reviews', __name__, url_prefix=current_app.config['API_P
 class ReviewView(BaseView):
     """Handler for /users/ endpoint"""
     _endpoint_name = '/reviews/'
-    _name = 'review'
+    _name = 'reviewview'
     decorators = [jwt_required()]
 
     def get(self):
@@ -21,45 +21,55 @@ class ReviewView(BaseView):
             ---
             description: Get a review for user
             security:
-            - jwt: []
+                - jwt: []
             responses:
-              200:
-                content:
-                  application/json:
-                    schema: ReviewSchema
+                200:
+                    content:
+                        application/json:
+                            schema: ReviewSchema
         """
         user_id = get_jwt_identity()
         reviews = Review.query.filter(Review.user_id == user_id).all()
-        schema = ReviewSchema(many=True)
-        return jsonify(schema.dump(reviews))
+        # schema = ReviewSchema(many=True)
+        # return jsonify(schema.dump(reviews))
+        return reviews
 
     @use_kwargs(ReviewSchema())
     def post(self, **kwargs):
+        """Review view
+            ---
+            description: Get a review for user
+            security:
+                - jwt: []
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema: ReviewSchema
+        """
         user_id = get_jwt_identity()
         review = Review(**kwargs, user_id=user_id)
         DB.session.add(review)
         DB.session.commit()
-        return jsonify({'msg': 'OK'}), 201
-
-    def put(self, user_id):
-        if user_id is None:
-            return {'error': 'user_id not provided'}
-        return {'hello': 'put'}
-
-    def delete(self, user_id):
-        if user_id is None:
-            return {'error': 'user_id not provided'}
-        return {'hello': 'delete'}
+        return jsonify({'message': 'OK'}), 201
 
 
 class ReviewListView(BaseView):
     """Handler for /users endpoint"""
     _endpoint_name = '/reviews/list'
-    _name = 'reviews'
+    _name = 'reviewlistview'
     decorators = [jwt_required()]
 
     def get(self):
-        """Users view
+        """Review view
             ---
-            description: Get all users"""
+            description: Get a review for user
+            security:
+                - jwt: []
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema: ReviewSchema
+        """
         return jsonify({'data': [{'name': 'Andrii'}, {'name': 'Lena'}]}), 200

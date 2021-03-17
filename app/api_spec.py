@@ -10,18 +10,12 @@ spec = APISpec(title="Semantic evaluator",
                openapi_version="3.0.2",
                plugins=[FlaskPlugin(), MarshmallowPlugin()])
 
+# register security scheme
+jwt_scheme = {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}
+spec.components.security_scheme("jwt", jwt_scheme)
+
 # register schemas with spec
 spec.components.schema("Review", schema=ReviewSchema)
 spec.components.schema("Register", schema=RegisterSchema)
 spec.components.schema("User", schema=UserSchema)
 spec.components.schema("Auth", schema=AuthSchema)
-
-# add swagger tags that are used for endpoint annotation
-tags = [{'name': 'Auth',
-         'description': 'Auth module'},
-        {'name': 'User',
-         'description': 'User module'}]
-
-for tag in tags:
-    # print(f"Adding tag: {tag['name']}")
-    spec.tag(tag)

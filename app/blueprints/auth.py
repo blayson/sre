@@ -13,20 +13,23 @@ auth_bp = Blueprint('auth', __name__, url_prefix=current_app.config['API_PREFIX'
 class RegisterView(BaseView):
     """Handler for /auth/register endpoint"""
     _endpoint_name = '/auth/register'
-    _name = 'register'
+    _name = 'registerview'
 
     @use_kwargs(UserSchema(only=('email', 'password'), partial=True))
     def post(self, **kwargs):
         """Register endpoint
             ---
             description: Register user
-            parameters:
-              in: User
-            responses:
-              200:
+            requestBody:
+                description: List of CVEs to provide info about.
+                required: true
                 content:
-                  application/json:
-                    schema: User
+                    application/json:
+                        schema: Register
+            responses:
+                201:
+                    description: User successfully created
+                    schema: Auth
         """
         try:
             user = User(**kwargs)
@@ -37,12 +40,12 @@ class RegisterView(BaseView):
         except Exception as e:
             LOGGER.info('User already exists')
             return {'msg': 'user already exists'}, 400
-        return jsonify(schema.dump({'token': token}))
+        return jsonify(schema.dump({'token': token})), 201
 
 
 class LoginView(BaseView):
     _endpoint_name = '/auth/login'
-    _name = 'login'
+    _name = 'loginview'
 
     @use_kwargs(UserSchema(only=('email', 'password'), partial=True))
     def post(self, **kwargs):
@@ -65,4 +68,4 @@ class LoginView(BaseView):
         except WrongPassword:
             return {'msg': 'No user with this password'}, 404
         schema = AuthSchema()
-        return jsonify(schema.dump({'token': token}))
+        return jsonify(schema.dump({'token': token})), 200

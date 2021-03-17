@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, Blueprint
 from flask.views import MethodView
 from . import LOGGER
 
@@ -8,7 +8,7 @@ class BaseView(MethodView):
     _name: str
 
     @classmethod
-    def register(cls, blueprint):
+    def register(cls, blueprint: Blueprint):
         method_view = cls.as_view(cls._name)
         blueprint.add_url_rule(cls._endpoint_name, view_func=method_view)
         blueprint.register_error_handler(422, cls.handle_error)

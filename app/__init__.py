@@ -36,15 +36,16 @@ def create_app(config_class=Config):
     MIGRATE.init_app(app, DB)
 
     with app.test_request_context():
-        from .blueprints.routes import routes_bp
+        from app.routes import register_routes
         from .blueprints.swagger import swagger_ui_blueprint, SWAGGER_URL
         from .blueprints.users import users_bp
         from .blueprints.auth import auth_bp
         from .blueprints.reviews import reviews_bp
 
         app.url_map.strict_slashes = False
+        # register routes
+        register_routes()
 
-        app.register_blueprint(routes_bp)
         app.register_blueprint(users_bp)
         app.register_blueprint(auth_bp)
         app.register_blueprint(reviews_bp)
@@ -64,18 +65,6 @@ def create_app(config_class=Config):
     def create_swagger_spec():
         return jsonify(spec.to_dict())
 
-    @app.teardown_appcontext
-    def shutdown_session(exception=None):
-        DB.session.remove()
-
-    # @app.before_request
-    # def _db_connect():
-    #     try:
-    #         DB.make_connector()
-    #     except OperationalError:
-    #         LOGGER.exception("Error occurred while connecting to database. %s", format_exc())
-    #         abort(503, "DB is not running")
-    #
     return app
 
 
