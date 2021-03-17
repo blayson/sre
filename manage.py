@@ -8,9 +8,14 @@ cli = FlaskGroup(app)
 
 @cli.command("create_db")
 def create_db():
-    # DB.drop_all()
     DB.create_all()
-    # DB.session.commit()
+
+
+@cli.command("recreate_db")
+def recreate_db():
+    DB.drop_all()
+    DB.create_all()
+    DB.session.commit()
 
 
 if __name__ == "__main__":

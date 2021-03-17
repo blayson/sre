@@ -5,7 +5,7 @@ services:
     container_name: sre-api
     restart: always
     build: .
-    command: python semantic_evaluator.py run -h 0.0.0.0
+    command: python manage.py run -h 0.0.0.0
     volumes:
       - .:/code
     ports:

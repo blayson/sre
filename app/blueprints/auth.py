@@ -26,7 +26,7 @@ class RegisterView(BaseView):
               200:
                 content:
                   application/json:
-                    schema: Auth
+                    schema: User
         """
         try:
             user = User(**kwargs)
