@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import OperationalError
 
 from app.logger import setup_logger
-from config import Config
+from config import DevelopmentConfig
 from app.api_spec import spec
 
 MIGRATE = Migrate()
@@ -26,7 +26,7 @@ LOGGER = setup_logger()
 # Base.query = session.query_property()
 
 
-def create_app(config_class=Config):
+def create_app(config_class=DevelopmentConfig):
     """Application factory"""
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -55,11 +55,8 @@ def create_app(config_class=Config):
         for fn_name in app.view_functions:
             if fn_name == 'static':
                 continue
-            # print(f"Loading swagger docs for function: {fn_name}")
             view_fn = app.view_functions[fn_name]
             spec.path(view=view_fn)
-
-        # DB.create_all()
 
     @app.route("/api/swagger.json")
     def create_swagger_spec():

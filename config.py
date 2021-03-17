@@ -19,3 +19,18 @@ class Config:
 
     API_VERSION = 1
     API_PREFIX = f'/api/v{API_VERSION}'
+
+    # Flask Settings
+    DEBUG = False
+    TESTING = False
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+
+class TestConfig(Config):
+    SQLALCHEMY_DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+    DEBUG = True
+    TESTING = True
