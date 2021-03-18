@@ -1,9 +1,10 @@
 import pytest
-import os
 import sys
-
+import contextlib
+from sqlalchemy import MetaData
 
 sys.path.append('..')
+
 from config import TestConfig
 from app import DB, create_app
 from app.models import User
@@ -26,17 +27,23 @@ from app.models import User
 
 @pytest.fixture(scope='function')
 def app():
-    _app = create_app(TestConfig)
-    ctx = _app.test_request_context()
+    app = create_app(TestConfig)
+    ctx = app.test_request_context()
     ctx.push()
 
     DB.drop_all()
     DB.create_all()
 
-    yield _app
+    yield app
 
     DB.session.remove()
-    DB.drop_all()
+
+    with contextlib.closing(DB.engine.connect()) as con:
+        trans = con.begin()
+        for table in reversed(DB.metadata.sorted_tables):
+            con.execute(table.delete())
+        trans.commit()
+
     ctx.pop()
 
 
