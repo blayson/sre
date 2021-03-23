@@ -1,0 +1,1 @@
+ALTER TABLE product_features_keywords ADD COLUMN languages_id integer NOT NULL default 1;

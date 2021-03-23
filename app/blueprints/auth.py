@@ -1,11 +1,12 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, current_app
+from sqlalchemy.exc import IntegrityError
 from webargs.flaskparser import use_kwargs
 
 from app.base_view import BaseView
 from app.exceptions import WrongPassword
-from app.models import User
+from app.models.models import Users
 from app import DB, LOGGER
-from app.schemas import UserSchema, RegisterSchema, AuthSchema
+from app.schemas import UserSchema, AuthSchema
 
 auth_bp = Blueprint('auth', __name__, url_prefix=current_app.config['API_PREFIX'])
 
@@ -15,7 +16,7 @@ class RegisterView(BaseView):
     _endpoint_name = '/auth/register'
     _name = 'registerview'
 
-    @use_kwargs(UserSchema(only=('email', 'password'), partial=True))
+    @use_kwargs(UserSchema(only=('email', 'password', 'name'), partial=True))
     def post(self, **kwargs):
         """Register endpoint
             ---
@@ -32,14 +33,18 @@ class RegisterView(BaseView):
                     schema: Auth
         """
         try:
-            user = User(**kwargs)
+            user = Users(**kwargs)
             DB.session.add(user)
             DB.session.commit()
             token = user.get_token()
             schema = AuthSchema()
-        except Exception as e:
-            LOGGER.info('User already exists')
+        except IntegrityError as e:
+            LOGGER.exception('Error during register')
             return {'msg': 'user already exists'}, 409
+        except Exception as e:
+            DB.session.rollback()
+            LOGGER.exception('Error during register: %s', e)
+            return {'msg': 'acc'}, 500
         return jsonify(schema.dump({'token': token})), 201
 
 
@@ -61,7 +66,7 @@ class LoginView(BaseView):
                     schema: Auth
         """
         try:
-            user = User.authenticate(**kwargs)
+            user = Users.authenticate(**kwargs)
             token = user.get_token()
         except TypeError:
             return {'msg': 'missing 2 required parameters'}, 400

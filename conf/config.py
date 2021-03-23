@@ -3,13 +3,13 @@ import os
 from dotenv import load_dotenv
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
-load_dotenv(os.path.join(BASEDIR, '.env'))
+load_dotenv(os.path.join(BASEDIR, '../.env'))
 
-DB_NAME = os.getenv('POSTGRES_DATABASE', "postgres").strip()
+DB_NAME = os.getenv('POSTGRES_DATABASE', "mta").strip()
 DB_USER = os.getenv('POSTGRES_USER', "postgres").strip()
-DB_PASS = os.getenv('POSTGRES_PASSWORD', "postgres").strip()
-DB_HOST = os.getenv('POSTGRES_HOST', "0.0.0.0").strip()
-DB_PORT = int(os.getenv('POSTGRES_PORT', "5432").strip())
+DB_PASS = os.getenv('POSTGRES_PASSWORD', "docker").strip()
+DB_HOST = os.getenv('POSTGRES_HOST', "localhost").strip()
+DB_PORT = int(os.getenv('POSTGRES_PORT', "7090").strip())
 
 
 class Config:

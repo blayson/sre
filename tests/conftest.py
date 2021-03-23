@@ -1,13 +1,12 @@
 import pytest
 import sys
 import contextlib
-from sqlalchemy import MetaData
 
 sys.path.append('..')
 
-from config import TestConfig
+from conf.config import TestConfig
 from app import DB, create_app
-from app.models import User
+from app.models.models import Users
 
 
 # def pytest_addoption(parser):
@@ -49,7 +48,7 @@ def app():
 
 @pytest.fixture(scope='function')
 def user(app):
-    user = User(email='test@test.com', password='password')
+    user = Users(email='test@test.com', password='password')
     DB.session.add(user)
     DB.session.commit()
 

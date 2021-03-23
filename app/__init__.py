@@ -3,31 +3,19 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS as _CORS
-# from sqlalchemy import create_engine
-# from sqlalchemy.ext.declarative import declarative_base
-# from sqlalchemy.orm import scoped_session, sessionmaker
-from sqlalchemy.exc import OperationalError
 
 from app.logger import setup_logger
-from config import DevelopmentConfig, Config
+from conf.config import DevelopmentConfig, Config
 from app.api_spec import spec
 
 MIGRATE = Migrate()
 DB = SQLAlchemy()
 JWT = JWTManager()
-
 LOGGER = setup_logger()
 
 CORS = _CORS(resources={
     r"/*": {"origins": Config.CORS_ALLOWED_ORIGINS}
 })
-
-# SQLAlchemy
-# engine = create_engine(SQLALCHEMY_DATABASE_URI)
-# Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# session = scoped_session(Session)
-# Base = declarative_base()
-# Base.query = session.query_property()
 
 
 def create_app(config_class=DevelopmentConfig):
@@ -37,8 +25,9 @@ def create_app(config_class=DevelopmentConfig):
 
     JWT.init_app(app)
     DB.init_app(app)
-    MIGRATE.init_app(app, DB)
+    # MIGRATE.init_app(app, DB)
     CORS.init_app(app)
+    DB.reflect(app=app)
 
     with app.test_request_context():
         from app.routes import register_routes
@@ -48,6 +37,7 @@ def create_app(config_class=DevelopmentConfig):
         from .blueprints.reviews import reviews_bp
 
         app.url_map.strict_slashes = False
+
         # register routes
         register_routes()
 
@@ -67,16 +57,4 @@ def create_app(config_class=DevelopmentConfig):
     def create_swagger_spec():
         return jsonify(spec.to_dict())
 
-    # @app.after_request
-    # def after_request(response):
-    #     header = response.headers
-    #     header['Access-Control-Allow-Origin'] = '*'
-    #     header['Access-Control-Allow-Methods'] = '*'
-    #     header['Access-Control-Allow-Headers'] = '*'
-    #     return response
-
     return app
-
-
-# Move import to the end of file to avoid circular import
-from app import models

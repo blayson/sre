@@ -3,9 +3,9 @@ from marshmallow import fields
 
 from app.base_view import BaseView
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.models import Review, User
+from app.models.models import Reviews, Users
 from app.schemas import ReviewSchema, UserSchema
-from webargs.flaskparser import use_kwargs, use_args
+from webargs.flaskparser import use_args
 
 users_bp = Blueprint('users', __name__, url_prefix=current_app.config['API_PREFIX'])
 
@@ -29,7 +29,7 @@ class UserView(BaseView):
                             schema: User
         """
         user_id = get_jwt_identity()
-        user = User.query.filter(User.id == user_id).one()
+        user = Users.query.filter(Users.id == user_id).one()
         schema = UserSchema()
         return jsonify(schema.dump(user))
 
@@ -53,7 +53,7 @@ class UserListView(BaseView):
                         application/json:
                             schema: User
         """
-        users = User.query.all()
+        users = Users.query.all()
         if args.get('reviews', None):
             schema = UserSchema(many=True)
         else:
@@ -79,6 +79,6 @@ class UserReviewsView(BaseView):
                             schema: User
         """
         user_id = get_jwt_identity()
-        reviews = Review.query.filter(Review.user_id == user_id).all()
+        reviews = Reviews.query.filter(Reviews.user_id == user_id).all()
         schema = ReviewSchema(many=True)
         return jsonify(schema.dump(reviews))

@@ -1,19 +1,5 @@
 version: '3'
-
 services:
-  sre_api:
-    container_name: sre-api
-    restart: always
-    build: .
-    command: python manage.py run -h 0.0.0.0
-    volumes:
-      - .:/code
-    ports:
-      - 5000:5000
-    env_file:
-      - ./.env
-    depends_on:
-      - postgres
 
   postgres:
     image: postgres
@@ -21,7 +7,7 @@ services:
     ports:
       - 7090:5432
     volumes:
-      - ./models/migration/:/tmp/db
+      - ./migration/:/tmp/db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
@@ -33,3 +19,4 @@ services:
     container_name: adminer_mta
     ports:
       - 7080:8080
+

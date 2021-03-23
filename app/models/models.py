@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime, timezone
 
 from passlib.hash import bcrypt
 from flask_jwt_extended import create_access_token
@@ -7,14 +7,8 @@ from app import DB
 from app.exceptions import WrongPassword
 
 
-class User(DB.Model):
-    id = DB.Column(DB.Integer, primary_key=True)
-    name = DB.Column(DB.String(64), index=True)
-    email = DB.Column(DB.String(120), index=True, unique=True, nullable=False)
-    password = DB.Column(DB.String(128), nullable=False)
-    about_me = DB.Column(DB.String(240))
-    last_seen = DB.Column(DB.DateTime, default=datetime.utcnow)
-    reviews = DB.relationship('Review', backref='user', lazy=True)
+class Users(DB.Model):
+    __table__ = DB.Model.metadata.tables['users']
 
     def __repr__(self):
         return '<User {}>'.format(self.name)
@@ -22,13 +16,16 @@ class User(DB.Model):
     def __init__(self, **kwargs):
         self.email = kwargs.get('email')
         self.password = bcrypt.hash(kwargs.get('password'))
+        self.name = kwargs.get('name')
+        self.registered = datetime.now(timezone.utc)
+        self.user_roles_id = 1
 
     def set_password(self, password):
         self.password = bcrypt.hash(password)
 
     def get_token(self, expire_time=24):
         expire_delta = timedelta(expire_time)
-        token = create_access_token(identity=self.id, expires_delta=expire_delta)
+        token = create_access_token(identity=self.users_id, expires_delta=expire_delta)
         return token
 
     @classmethod
@@ -39,7 +36,10 @@ class User(DB.Model):
         return user
 
 
-class Review(DB.Model):
-    id = DB.Column(DB.Integer, primary_key=True)
-    changed = DB.Column(DB.Boolean)
-    user_id = DB.Column(DB.Integer, DB.ForeignKey('user.id'), nullable=False)
+class UserRoles(DB.Model):
+    __table__ = DB.Model.metadata.tables['reviews']
+
+
+class Reviews(DB.Model):
+    __table__ = DB.Model.metadata.tables['reviews']
+

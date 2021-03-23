@@ -5,7 +5,7 @@ from app.base_view import BaseView
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from webargs.flaskparser import use_kwargs
 from app.schemas import ReviewSchema
-from app.models import Review
+from app.models.models import Reviews
 
 reviews_bp = Blueprint('reviews', __name__, url_prefix=current_app.config['API_PREFIX'])
 
@@ -29,7 +29,7 @@ class ReviewView(BaseView):
                             schema: ReviewSchema
         """
         user_id = get_jwt_identity()
-        reviews = Review.query.filter(Review.user_id == user_id).all()
+        reviews = Reviews.query.filter(Reviews.user_id == user_id).all()
         # schema = ReviewSchema(many=True)
         # return jsonify(schema.dump(reviews))
         return reviews
@@ -48,7 +48,7 @@ class ReviewView(BaseView):
                             schema: ReviewSchema
         """
         user_id = get_jwt_identity()
-        review = Review(**kwargs, user_id=user_id)
+        review = Reviews(**kwargs, user_id=user_id)
         DB.session.add(review)
         DB.session.commit()
         return jsonify({'message': 'OK'}), 201
