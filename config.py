@@ -24,6 +24,8 @@ class Config:
     DEBUG = False
     TESTING = False
 
+    CORS_ALLOWED_ORIGINS = ['*']
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

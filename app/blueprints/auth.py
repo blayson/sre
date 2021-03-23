@@ -39,7 +39,7 @@ class RegisterView(BaseView):
             schema = AuthSchema()
         except Exception as e:
             LOGGER.info('User already exists')
-            return {'msg': 'user already exists'}, 400
+            return {'msg': 'user already exists'}, 409
         return jsonify(schema.dump({'token': token})), 201
 
 
