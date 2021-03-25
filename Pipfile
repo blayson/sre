@@ -6,25 +6,19 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-flask = "*"
-flask-migrate = "*"
 sqlalchemy = "*"
-werkzeug = "*"
-apispec = "*"
-requests = "*"
-flask-jwt-extended = "*"
 passlib = "*"
 bcrypt = "*"
-marshmallow = "*"
 pytest = "*"
 alembic = "*"
 python-dotenv = "*"
-apispec-webframeworks = "*"
-openapi-spec-validator = "*"
-flask-swagger-ui = "*"
-webargs = "*"
 psycopg2-binary = "*"
-flask-cors = "*"
+fastapi = "*"
+uvicorn = "*"
+databases = "*"
+asyncpg = "*"
+fastapi-jwt-auth = "*"
+python-jose = "*"
 
 [requires]
 python_version = "3.7.10"
