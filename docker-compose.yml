@@ -2,10 +2,10 @@ version: '3'
 
 services:
   sre_api:
-    container_name: sre-api
+    container_name: sre-routes
     restart: always
     build: .
-    command: python manage.py run -h 0.0.0.0
+    command: uvicorn app.main:app --reload
     volumes:
       - .:/code
     ports:
@@ -21,7 +21,7 @@ services:
     ports:
       - 7090:5432
     volumes:
-      - ./models/migration/:/tmp/db
+      - ./database/migration/:/tmp/db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: docker
