@@ -1,24 +1,11 @@
-from pydantic import BaseModel, validator, EmailStr
-from datetime import datetime, timezone
-from passlib.hash import bcrypt
+from datetime import datetime
+from typing import List
 
+from passlib.handlers.bcrypt import bcrypt
+from pydantic import validator
 
-def normalize(name: str) -> str:
-    return ' '.join((word.capitalize()) for word in name.split(' '))
-
-
-def not_empty(val: str) -> str:
-    assert val != '', 'Empty strings are not allowed'
-    return val
-
-
-def set_ts_now(val: datetime) -> datetime:
-    return val or datetime.now(timezone.utc)
-
-
-class BaseSchema(BaseModel):
-    class Config:
-        orm_mode = True
+from app.models.schemas.base import BaseSchema
+from app.models.validators import not_empty, normalize
 
 
 class BaseUser(BaseSchema):
@@ -30,6 +17,10 @@ class BaseUser(BaseSchema):
 
 class User(BaseUser):
     users_id: int
+
+
+class UserList(BaseSchema):
+    __root__: List[User]
 
 
 class UserInRegister(BaseUser):
@@ -54,28 +45,3 @@ class UserInRegister(BaseUser):
     @validator("registered", pre=True, always=True)
     def default_datetime(cls, value: datetime) -> datetime:
         return value or datetime.utcnow()
-
-
-class UserWithToken(BaseUser):
-    token: str
-
-
-class Token(BaseSchema):
-    token: str
-
-
-class UserInResponse(BaseSchema):
-    user: UserWithToken
-
-
-class UserInLogin(BaseSchema):
-    username: EmailStr
-    password: str
-
-    _not_empty = validator('username', allow_reuse=True)(not_empty)
-
-    @validator("password", pre=True, always=True)
-    def length(cls, v):
-        if len(v) < 5:
-            raise ValueError('minimum 5 characters required')
-        return v

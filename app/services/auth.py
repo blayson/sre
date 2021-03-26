@@ -1,17 +1,16 @@
 from datetime import datetime, timedelta
 
-from asyncpg import Record, UniqueViolationError
+from asyncpg import Record
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.hash import bcrypt
 from starlette import status
 
-from app.core.exceptions import internal_server_error
 from app.services.users import UsersService
 from app.settings import settings
-from app.models.schemas.users import User, Token, UserInRegister
-from app.models.domain import tables
+from app.models.schemas.users import User, UserInRegister
+from app.models.schemas.auth import Token
 from app.core.db import database
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/routes/v1/auth/login')

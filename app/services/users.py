@@ -1,14 +1,11 @@
-from typing import List
-
 from asyncpg import Record, UniqueViolationError
 from fastapi import HTTPException
-from pydantic import ValidationError
 from starlette import status
 
 from app.core.db import database
 from app.core.exceptions import internal_server_error
 from app.models.domain.tables import TUsers
-from app.models.schemas.users import User, UserInRegister
+from app.models.schemas.users import UserInRegister
 
 
 class UsersService:
@@ -16,22 +13,17 @@ class UsersService:
     @classmethod
     async def get_user_by_email(cls, email: str) -> Record:
         query = TUsers.select().where(email == TUsers.c.email)
-        user_data: Record = await database.fetch_one(query)
-        # user = User.parse_obj(user_data)
-        return user_data
+        return await database.fetch_one(query)
 
     @classmethod
     async def get_user_by_id(cls, user_id: str) -> Record:
         query = TUsers.select().where(user_id == TUsers.c.user_id)
-        user_data: Record = await database.fetch_one(query)
-        # user = User.parse_obj(user_data)
-        return user_data
+        return await database.fetch_one(query)
 
     @classmethod
-    async def get_all_users(cls) -> List[User]:
+    async def get_all_users(cls) -> Record:
         query = TUsers.select()
-        user_data = await database.fetch_all(query)
-        return [User.parse_obj(row) for row in user_data]
+        return await database.fetch_all(query)
 
     @classmethod
     async def create_user(cls, user_data: UserInRegister) -> Record:
