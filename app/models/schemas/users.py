@@ -1,4 +1,4 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, validator, EmailStr
 from datetime import datetime, timezone
 from passlib.hash import bcrypt
 
@@ -69,10 +69,10 @@ class UserInResponse(BaseSchema):
 
 
 class UserInLogin(BaseSchema):
-    email: str
+    username: EmailStr
     password: str
 
-    _not_empty = validator('email', allow_reuse=True)(not_empty)
+    _not_empty = validator('username', allow_reuse=True)(not_empty)
 
     @validator("password", pre=True, always=True)
     def length(cls, v):

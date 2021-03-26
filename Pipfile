@@ -19,6 +19,8 @@ databases = "*"
 asyncpg = "*"
 fastapi-jwt-auth = "*"
 python-jose = "*"
+email-validator = "*"
+python-multipart = "*"
 
 [requires]
 python_version = "3.7.10"

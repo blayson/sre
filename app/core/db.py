@@ -15,5 +15,3 @@ Base = automap_base()
 Base.prepare(engine, reflect=True)
 
 database = databases.Database(settings.SQLALCHEMY_DATABASE_URL)
-
-

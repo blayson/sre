@@ -5,29 +5,27 @@ from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.hash import bcrypt
-from pydantic import ValidationError
 from starlette import status
 
 from app.core.exceptions import internal_server_error
+from app.services.users import UsersService
 from app.settings import settings
 from app.models.schemas.users import User, Token, UserInRegister
 from app.models.domain import tables
 from app.core.db import database
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/login')
-
-
-def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
-    return AuthService.verify_token(token)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/routes/v1/auth/login')
 
 
 class AuthService:
+    def __init__(self, users_service: UsersService = Depends()):
+        self.users_service = users_service
+
     @classmethod
     def verify_password(cls, plain_password: str, hashed_password: str) -> bool:
         return bcrypt.verify(plain_password, hashed_password)
 
-    @classmethod
-    def verify_token(cls, token: str) -> User:
+    async def verify_token(self, token: str) -> User:
         exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Could not validate credentials',
@@ -41,14 +39,9 @@ class AuthService:
         except JWTError:
             raise exception from None
 
-        user_data = payload.get('user')
-
-        try:
-            user = User.parse_obj(user_data)
-        except ValidationError:
-            raise exception from None
-
-        return user
+        user_email = payload.get('user').get('email')
+        user: Record = await self.users_service.get_user_by_email(user_email)
+        return User.parse_obj(user)
 
     @classmethod
     def create_token(cls, user: Record) -> Token:
@@ -70,23 +63,7 @@ class AuthService:
 
     @database.transaction()
     async def register_new_user(self, user_data: UserInRegister) -> Token:
-        try:
-            query = tables.Users.insert().returning(
-                tables.Users.c.users_id,
-                tables.Users.c.email,
-                tables.Users.c.name,
-                tables.Users.c.user_roles_id,
-                tables.Users.c.register_language
-            ).values(**user_data.dict())
-            user = await database.fetch_one(query)
-        except UniqueViolationError as e:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='User already exist',
-            )
-        except Exception as e:
-            raise internal_server_error
-
+        user = await self.users_service.create_user(user_data)
         return self.create_token(user)
 
     async def authenticate_user(self, email: str, password: str, ) -> Token:
@@ -94,9 +71,7 @@ class AuthService:
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail='Incorrect email or password',
         )
-        async with database.transaction():
-            query = tables.Users.select().where(tables.Users.c.email == email)
-            user = await database.fetch_one(query)
+        user = await self.users_service.get_user_by_email(email)
 
         if not user:
             raise exception
@@ -105,3 +80,10 @@ class AuthService:
             raise exception
 
         return self.create_token(user)
+
+
+async def get_current_user(
+        token: str = Depends(oauth2_scheme),
+        service: AuthService = Depends()
+) -> User:
+    return await service.verify_token(token)

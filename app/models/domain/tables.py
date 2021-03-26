@@ -13,6 +13,6 @@ class ReviewsTable(Base):
     __tablename__ = 'reviews'
 
 
-Users = UsersTable.__table__
+TUsers = UsersTable.__table__
 UserRoles = UserRolesTable.__table__
 Reviews = ReviewsTable.__table__

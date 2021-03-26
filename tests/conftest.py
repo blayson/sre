@@ -21,7 +21,7 @@ sys.path.append('..')
 #
 # @pytest.fixture(scope="session")
 # def api_v1_host(host):
-#     return os.path.join(host, "api", "v1")
+#     return os.path.join(host, "routes", "v1")
 
 
 # @pytest.fixture(scope='function')

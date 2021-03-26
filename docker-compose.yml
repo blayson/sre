@@ -2,7 +2,7 @@ version: '3'
 
 services:
   sre_api:
-    container_name: sre-api
+    container_name: sre-routes
     restart: always
     build: .
     command: uvicorn app.main:app --reload
