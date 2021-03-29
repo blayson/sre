@@ -5,12 +5,12 @@ class Settings(BaseSettings):
     server_host: str = '127.0.0.1'
     server_port: int = 8000
 
-    SQLALCHEMY_DATABASE_URL = "postgresql://postgres:docker@localhost:7090/mta"
+    database_url = "postgresql://postgres:docker@localhost:7090/mta"
 
-    VERSION = '0.0.0'
-    ALLOWED_HOSTS = ['*']
-    API_PREFIX = '/api/v1'
-    PROJECT_NAME = 'Semantic results evaluator'
+    version = '0.0.1a'
+    allowed_hosts = ['*']
+    api_prefix = '/api/v1'
+    project_name = 'Semantic results evaluator'
 
     jwt_secret: str
     jwt_algorithm: str = 'HS256'

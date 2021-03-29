@@ -11,14 +11,14 @@ from app.settings import settings
 
 def create_application() -> FastAPI:
     application = FastAPI(
-        title=settings.PROJECT_NAME,
+        title=settings.project_name,
         debug=settings.debug,
-        version=settings.VERSION
+        version=settings.version
     )
 
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.ALLOWED_HOSTS or ["*"],
+        allow_origins=settings.allowed_hosts,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -35,7 +35,7 @@ def create_application() -> FastAPI:
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)
 
-    application.include_router(router, prefix=settings.API_PREFIX)
+    application.include_router(router, prefix=settings.api_prefix)
 
     return application
 
