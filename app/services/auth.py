@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
 from asyncpg import Record
-from fastapi import HTTPException, Depends
+from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.hash import bcrypt
-from starlette import status
 
+from app.core.error_handlers import unauthorized_error, forbidden_error
 from app.services.users import UsersService
 from app.settings import settings
 from app.models.schemas.users import User, UserInRegister
@@ -25,10 +25,6 @@ class AuthService:
         return bcrypt.verify(plain_password, hashed_password)
 
     async def verify_token(self, token: str) -> User:
-        exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Could not validate credentials',
-        )
         try:
             payload = jwt.decode(
                 token,
@@ -36,7 +32,7 @@ class AuthService:
                 algorithms=[settings.jwt_algorithm],
             )
         except JWTError:
-            raise exception from None
+            raise unauthorized_error from None
 
         user_email = payload.get('user').get('email')
         user: Record = await self.users_service.get_user_by_email(user_email)
@@ -66,17 +62,13 @@ class AuthService:
         return self.create_token(user)
 
     async def authenticate_user(self, email: str, password: str, ) -> Token:
-        exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect email or password',
-        )
         user = await self.users_service.get_user_by_email(email)
 
         if not user:
-            raise exception
+            raise forbidden_error
 
         if not self.verify_password(password, user['password']):
-            raise exception
+            raise forbidden_error
 
         return self.create_token(user)
 

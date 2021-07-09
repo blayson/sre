@@ -3,13 +3,13 @@ from fastapi import HTTPException
 from starlette import status
 
 from app.core.db import database
-from app.core.exceptions import internal_server_error
+from app.core.error_handlers import internal_server_error, conflict_error
 from app.models.domain.tables import TUsers
 from app.models.schemas.users import UserInRegister
+from app.services.base import BaseService
 
 
-class UsersService:
-
+class UsersService(BaseService):
     @classmethod
     async def get_user_by_email(cls, email: str) -> Record:
         query = TUsers.select().where(email == TUsers.c.email)
@@ -37,10 +37,7 @@ class UsersService:
             ).values(**user_data.dict())
             user: Record = await database.fetch_one(query)
         except UniqueViolationError as e:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='User already exist',
-            )
+            raise conflict_error
         except Exception as e:
             raise internal_server_error
         return user

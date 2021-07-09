@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from app.routes.api import router
 from app.core.db import database
-from app.core.exceptions import http_error_handler, http422_error_handler
+from app.core.error_handlers import http_error_handler, http422_error_handler
 from app.settings import settings
 
 
@@ -34,6 +35,7 @@ def create_application() -> FastAPI:
 
     application.add_exception_handler(HTTPException, http_error_handler)
     application.add_exception_handler(RequestValidationError, http422_error_handler)
+    application.add_exception_handler(ValidationError, http422_error_handler)
 
     application.include_router(router, prefix=settings.api_prefix)
 

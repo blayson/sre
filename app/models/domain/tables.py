@@ -13,6 +13,11 @@ class ReviewsTable(Base):
     __tablename__ = 'reviews'
 
 
+class ProductsTable(Base):
+    __tablename__ = 'reviews'
+
+
 TUsers = UsersTable.__table__
-UserRoles = UserRolesTable.__table__
-Reviews = ReviewsTable.__table__
+TUserRoles = UserRolesTable.__table__
+TReviews = ReviewsTable.__table__
+TProducts = ProductsTable.__table__
