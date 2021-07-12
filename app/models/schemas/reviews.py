@@ -55,7 +55,8 @@ class ReviewList(BaseSchema):
     __root__: List[Review]
 
 
-class ReviewPage(ReviewList):
+class ReviewPage(BaseSchema):
+    data: ReviewList
     page: int
     size: int
     total: int

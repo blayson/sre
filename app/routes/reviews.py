@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.models.schemas.reviews import ReviewList, Review
+from app.models.schemas.reviews import ReviewList, Review, ReviewPage
 from app.services.reviews import ReviewService
 
 router = APIRouter()
@@ -14,10 +14,10 @@ async def get_review(
     return Review.parse_obj(service.get_review_by_id(review_id))
 
 
-@router.get('/list', response_model=ReviewList)
+@router.get('/list', response_model=ReviewPage)
 async def get_review_list(
         page: int = 0,
         size: int = 10,
         service: ReviewService = Depends()
-) -> ReviewList:
-    return ReviewList.parse_obj(await service.get_review_list(page, size))
+) -> ReviewPage:
+    return await service.get_review_list(page, size)
