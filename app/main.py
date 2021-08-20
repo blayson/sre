@@ -33,9 +33,9 @@ def create_application() -> FastAPI:
     async def shutdown():
         await database.disconnect()
 
-    application.add_exception_handler(HTTPException, http_error_handler)
-    application.add_exception_handler(RequestValidationError, http422_error_handler)
-    application.add_exception_handler(ValidationError, http422_error_handler)
+    # application.add_exception_handler(HTTPException, http_error_handler)
+    # application.add_exception_handler(RequestValidationError, http422_error_handler)
+    # application.add_exception_handler(ValidationError, http422_error_handler)
 
     application.include_router(router, prefix=settings.api_prefix)
 

@@ -1,5 +1,5 @@
-from app.models.schemas.base import BaseSchema
+from app.models.schemas.base import BaseSchemaORM
 
 
-class Token(BaseSchema):
+class Token(BaseSchemaORM):
     token: str

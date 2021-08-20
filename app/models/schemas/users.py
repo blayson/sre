@@ -4,26 +4,26 @@ from typing import List
 from passlib.handlers.bcrypt import bcrypt
 from pydantic import validator
 
-from app.models.schemas.base import BaseSchema
+from app.models.schemas.base import BaseSchemaORM
 from app.models.validators import not_empty, normalize
 
 
-class BaseUser(BaseSchema):
+class BaseUserORM(BaseSchemaORM):
     name: str
     email: str
     register_language: int = 2
     user_roles_id: int = 1
 
 
-class User(BaseUser):
+class User(BaseUserORM):
     users_id: int
 
 
-class UserList(BaseSchema):
+class UserList(BaseSchemaORM):
     __root__: List[User]
 
 
-class UserInRegister(BaseUser):
+class UserInRegister(BaseUserORM):
     password: str
     registered: datetime = None
 

@@ -1,9 +1,10 @@
-from typing import List
+import datetime
+from typing import List, Optional
 
-from app.models.schemas.base import BaseSchema
+from app.models.schemas.base import BaseSchemaORM, BaseSchema
 
 
-class BaseFeature(BaseSchema):
+class BaseFeature(BaseSchemaORM):
     text: str
     language: str
     cluster: str
@@ -11,11 +12,11 @@ class BaseFeature(BaseSchema):
     description: str
 
 
-class Feature(BaseSchema):
+class Feature(BaseSchemaORM):
     feature_names_id: int
 
 
-class BaseProduct(BaseSchema):
+class BaseProduct(BaseSchemaORM):
     name: str
     brand: str
     model: str
@@ -34,14 +35,14 @@ class Product(BaseProduct):
 class BaseReview(BaseSchema):
     text: str
     sentiment: str
-    published_at: str
-    retrieved_at: str
-    inserted_at: str
+    published_at: datetime.date
+    retrieved_at: datetime.date
+    inserted_at: datetime.date
 
 
 class Review(BaseReview):
     reviews_id: int
-    mongo_id: int
+    mongo_id: str
     feature_names_id: int
     products_id: int
 
@@ -51,13 +52,27 @@ class ReviewExt(BaseReview):
     feature: Feature
 
 
-class ReviewList(BaseSchema):
-    __root__: List[Review]
+class ReviewProduct(Review):
+    brand: str
+    model: str
+    feature: str
+    product_name: str
 
 
-class ReviewPage(BaseSchema):
-    data: ReviewList
-    page: int
-    size: int
+class ReviewTable(BaseSchema):
+    feature: str
+    product: str
+    text: str
+    sentiment: str
+
+
+class ReviewPage(BaseSchemaORM):
+    data: List[ReviewTable]
+    page: Optional[int] = None
+    size: Optional[int] = None
     total: int
+    start: Optional[int] = None
+    end: Optional[int] = None
+    product: Optional[str] = None
+    feature: Optional[str] = None
 

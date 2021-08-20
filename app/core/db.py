@@ -1,18 +1,36 @@
+from contextvars import ContextVar
+
 import databases
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table, MetaData
 from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import sessionmaker, Session
 
 from app.settings import settings
 
-# metadata.reflect(engine)  # only=['users', 'user_roles', 'reviews', 'feature_names', 'products'])
+database = databases.Database(settings.database_url)
+
 # Base = automap_base(metadata=metadata)
 
 engine = create_engine(settings.database_url)
 
 # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = automap_base()
+# Base = automap_base()
 
-Base.prepare(engine, reflect=True)
+# Base.prepare(engine, reflect=True)
 
-database = databases.Database(settings.database_url)
+metadata = MetaData()
+metadata.reflect(engine)  # only=['users', 'user_roles', 'reviews', 'feature_names', 'products']
+
+# def get_db():
+#     db: Session = SessionLocal()
+#     try:
+#         yield db
+#         db.commit()
+#     except Exception:
+#         db.rollback()
+#     finally:
+#         db.close()
+#
+#
+# db_session: ContextVar[Session] = ContextVar('db_session')

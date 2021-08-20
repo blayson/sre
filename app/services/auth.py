@@ -18,7 +18,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/routes/v1/auth/login')
 
 class AuthService:
     def __init__(self, users_service: UsersService = Depends()):
-        self.users_service = users_service
+        self.users_service: UsersService = users_service
 
     @classmethod
     def verify_password(cls, plain_password: str, hashed_password: str) -> bool:

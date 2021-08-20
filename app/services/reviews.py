@@ -1,24 +1,24 @@
-from databases.backends.postgres import Record
-from sqlalchemy import func
+from typing import Tuple, Optional, Mapping, List
 
-from app.core.db import database
-from app.models.domain.tables import TReviews
-from app.models.schemas.reviews import ReviewList, ReviewPage
+from fastapi import Depends
+from app.models.schemas.reviews import ReviewTable
+from app.repositories.reviews import ReviewsRepository
 from app.services.base import BaseService
 
 
 class ReviewService(BaseService):
 
-    @staticmethod
-    async def get_review_by_id(review_id: int) -> Record:
-        query = TReviews.select().where(review_id == TReviews.c.review_id)
-        return await database.fetch_one(query)
+    def __init__(self, repository: ReviewsRepository = Depends()):
+        self.repository: ReviewsRepository = repository
 
-    async def get_review_list(self, page: int, size: int) -> ReviewPage:
-        total_query = TReviews.select(func.count())
-        total = database.fetch_one(total_query)
-        query = TReviews.select()
-        query = self.paginate(query, page, size)
-        rows: Record = await database.fetch_all(query=query)
-        review_list = ReviewList.parse_obj(rows)
-        return ReviewPage(data=review_list, page=page, size=size, total=total)
+    async def get_review_by_id(self, review_id: int) -> Optional[Mapping]:
+        return await self.repository.get_review_by_id(review_id)
+
+    async def get_review_list(self, common_args: dict) -> Tuple[List[ReviewTable], int]:
+        rows = await self.repository.get_reviews(common_args)
+        try:
+            total = rows[0].get('total_items')
+            r_list = [ReviewTable(**row) for row in rows]
+            return r_list, total
+        except IndexError as exc:
+            raise "No items" from exc  # TODO: log and handle properly

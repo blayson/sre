@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from app.models.schemas.reviews import ReviewList, Review, ReviewPage
+from app.core.deps import pagination
+from app.models.schemas.reviews import Review, ReviewPage
 from app.services.reviews import ReviewService
 
 router = APIRouter()
@@ -10,14 +11,19 @@ router = APIRouter()
 async def get_review(
         review_id: int,
         service: ReviewService = Depends()
-) -> Review:
-    return Review.parse_obj(service.get_review_by_id(review_id))
+):
+    return await service.get_review_by_id(review_id)
 
 
-@router.get('/list', response_model=ReviewPage)
+@router.get('', response_model=ReviewPage, response_model_exclude_none=True, response_model_exclude_unset=True)
 async def get_review_list(
-        page: int = 0,
-        size: int = 10,
+        commons: dict = Depends(pagination),
         service: ReviewService = Depends()
-) -> ReviewPage:
-    return await service.get_review_list(page, size)
+):
+    review_list, total = await service.get_review_list(commons)
+    result = {"data": review_list,
+              "total": total}
+    for key, val in commons.items():
+        if val is not None:
+            result[key] = val
+    return result
