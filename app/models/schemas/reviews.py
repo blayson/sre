@@ -75,4 +75,5 @@ class ReviewPage(BaseSchemaORM):
     end: Optional[int] = None
     product: Optional[str] = None
     feature: Optional[str] = None
+    text: Optional[str] = None
 

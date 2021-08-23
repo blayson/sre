@@ -26,17 +26,19 @@ class ReviewsRepository(BaseRepository):
             'product': products.c.name,
             'feature': feature_names.c.text
         }
+
         filterable = {
             'product': products.c.name,
-            'feature': feature_names.c.text
+            'feature': feature_names.c.text,
+            'text': reviews.c.text
         }
 
         query = select(selectable).select_from(join)
 
         if common_args['start'] or common_args['end']:
-            query = self.paginate_range(query, common_args['start'], common_args['end'])
+            query = self.paginate(query, common_args['start'], common_args['end'], False)
         else:
-            query = self.paginate(query, common_args['page'], common_args['size'])
+            query = self.paginate(query, common_args['page'], common_args['size'], True)
 
         if common_args['sort']:
             query = self.apply_sort(query, common_args['sort'], sortable)
@@ -46,6 +48,9 @@ class ReviewsRepository(BaseRepository):
 
         if common_args['feature']:
             query = self.filter(query, ('feature', common_args['feature']), filterable)
+
+        if common_args['text']:
+            query = self.filter(query, ('text', common_args['text']), filterable)
 
         return await database.fetch_all(query=query)
 

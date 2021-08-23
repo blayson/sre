@@ -4,20 +4,24 @@ from sqlalchemy import asc, desc
 class BaseRepository:
 
     @staticmethod
-    def paginate(query, page: int, size: int):
-        query = query.limit(size).offset(page * size)
-        return query
-
-    @staticmethod
-    def paginate_range(query, start: int, end: int):
-        query = query.limit(end - start).offset(start)
+    def paginate(query, start: int, end: int, page: bool):
+        if page:
+            query = query.limit(end).offset(start * end)
+        else:
+            query = query.limit(end - start).offset(start)
         return query
 
     @staticmethod
     def apply_sort(query, sort_arg: str, sortable: dict):
         sort_arr = sort_arg.split(',')
         for sort in sort_arr:
-            column, sort_type = sort.split(' ')
+            sort_parsed = sort.split(' ')
+            column = sort_parsed[0]
+            try:
+                sort_type = sort_parsed[1]
+            except IndexError:
+                sort_type = 'asc'
+
             if sort_type == 'asc':
                 query = query.order_by(asc(sortable[column]))
             elif sort_type == 'desc':

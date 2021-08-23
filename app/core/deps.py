@@ -9,7 +9,8 @@ async def pagination(
         end: Optional[int] = None,
         sort: Optional[str] = None,
         feature: Optional[str] = None,
-        product: Optional[str] = None
+        product: Optional[str] = None,
+        text: Optional[str] = None
 ):
 
     return {"q": q,
@@ -19,7 +20,8 @@ async def pagination(
             "end": end,
             "sort": sort,
             "product": product,
-            "feature": feature}
+            "feature": feature,
+            "text": text}
 
 
 class CommonQueryParams:

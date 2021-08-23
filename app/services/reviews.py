@@ -21,4 +21,4 @@ class ReviewService(BaseService):
             r_list = [ReviewTable(**row) for row in rows]
             return r_list, total
         except IndexError as exc:
-            raise "No items" from exc  # TODO: log and handle properly
+            raise exc  # TODO: log and handle properly
