@@ -1,6 +1,7 @@
 import typing
 
-from sqlalchemy import select, func, asc, desc
+from sqlalchemy import select, func, types
+from sqlalchemy.sql import expression
 from app.models.domain.tables import products, reviews, product_names, product_features_keywords, feature_names
 
 from app.core.db import database
@@ -19,6 +20,9 @@ class ReviewsRepository(BaseRepository):
                       reviews.c.sentiment,
                       products.c.name.label('product'),
                       feature_names.c.text.label('feature'),
+                      func.concat(expression.cast(reviews.c.reviews_id, types.Unicode),
+                                  expression.cast("|", types.Unicode),
+                                  expression.cast(feature_names.c.features_id, types.Unicode)).label('id'),
                       func.count().over().label('total_items')]
 
         sortable = {

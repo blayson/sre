@@ -60,6 +60,7 @@ class ReviewProduct(Review):
 
 
 class ReviewTable(BaseSchema):
+    id: str
     feature: str
     product: str
     text: str
