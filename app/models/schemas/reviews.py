@@ -65,6 +65,7 @@ class ReviewTable(BaseSchema):
     product: str
     text: str
     sentiment: str
+    published_at: datetime.date
 
 
 class ReviewPage(BaseSchemaORM):

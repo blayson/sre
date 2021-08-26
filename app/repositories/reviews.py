@@ -20,6 +20,7 @@ class ReviewsRepository(BaseRepository):
                       reviews.c.sentiment,
                       products.c.name.label('product'),
                       feature_names.c.text.label('feature'),
+                      reviews.c.published_at,
                       func.concat(expression.cast(reviews.c.reviews_id, types.Unicode),
                                   expression.cast("|", types.Unicode),
                                   expression.cast(feature_names.c.features_id, types.Unicode)).label('id'),
@@ -28,7 +29,8 @@ class ReviewsRepository(BaseRepository):
         sortable = {
             'sentiment': reviews.c.sentiment,
             'product': products.c.name,
-            'feature': feature_names.c.text
+            'feature': feature_names.c.text,
+            'date': reviews.c.published_at
         }
 
         filterable = {
@@ -46,6 +48,8 @@ class ReviewsRepository(BaseRepository):
 
         if common_args['sort']:
             query = self.apply_sort(query, common_args['sort'], sortable)
+        else:
+            query = self.apply_sort(query, 'date desc', sortable)
 
         if common_args['product']:
             query = self.filter(query, ('product', common_args['product']), filterable)

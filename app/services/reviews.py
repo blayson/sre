@@ -18,6 +18,8 @@ class ReviewService(BaseService):
         rows = await self.repository.get_reviews(common_args)
         try:
             total = rows[0].get('total_items')
+            # for row in rows:
+            #     print(type(row.get('published_at')))
             r_list = [ReviewTable(**row) for row in rows]
             return r_list, total
         except IndexError as exc:
