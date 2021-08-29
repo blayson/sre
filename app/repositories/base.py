@@ -1,4 +1,7 @@
 from sqlalchemy import asc, desc
+from sqlalchemy.sql import select
+
+from app.models.domain.tables import product_categories, products
 
 
 class BaseRepository:
@@ -31,3 +34,8 @@ class BaseRepository:
     @staticmethod
     def filter(query, filter_args: tuple, filterable: dict):
         return query.where(filterable[filter_args[0]].ilike('%' + filter_args[1] + '%'))
+
+    @staticmethod
+    def filter_by_pcategory(query, filter_args: tuple, filterable: dict):
+        query = query.where(filterable[filter_args[0]] == filter_args[1])
+        return query

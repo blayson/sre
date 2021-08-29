@@ -1,7 +1,8 @@
 from typing import Tuple, Optional, Mapping, List
 
 from fastapi import Depends
-from app.models.schemas.reviews import ReviewTable
+from app.models.schemas.reviews import ReviewTable, ProductCategory, ReviewUpdates
+from app.models.schemas.users import User
 from app.repositories.reviews import ReviewsRepository
 from app.services.base import BaseService
 
@@ -23,4 +24,27 @@ class ReviewService(BaseService):
             r_list = [ReviewTable(**row) for row in rows]
             return r_list, total
         except IndexError as exc:
-            raise exc  # TODO: log and handle properly
+            return [], 0
+
+    async def get_categories_list(self):
+        return await self.repository.get_product_categories()
+        # return [ProductCategory(**row) for row in rows]
+
+    async def submit_update(self, review_id, updates: ReviewUpdates, user: User):
+        rows = await self.repository.submit_update(review_id, updates, user)
+        return rows
+
+    def approve_update(self, review_id):
+        pass
+
+    def reject_update(self, review_id):
+        pass
+
+    def get_updates_by_review(self, review_id):
+        pass
+
+    def get_update_by_id(self, review_id):
+        pass
+
+    def get_all_updates(self):
+        pass

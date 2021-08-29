@@ -7,13 +7,23 @@ products = Table(
     metadata,
 )
 
-reviews = Table(
-    "reviews",
+product_names = Table(
+    "product_names",
     metadata,
 )
 
-product_names = Table(
-    "product_names",
+product_categories = Table(
+    "product_categories",
+    metadata
+)
+
+product_category_names = Table(
+    "product_category_names",
+    metadata
+)
+
+reviews = Table(
+    "reviews",
     metadata,
 )
 
@@ -37,39 +47,12 @@ user_roles = Table(
     metadata,
 )
 
-#
-# class UsersTable(Base):
-#     __tablename__ = 'users'
-#
-#
-# class UserRolesTable(Base):
-#     __tablename__ = 'user_roles'
+reviews_suggestions = Table(
+    "reviews_suggestions",
+    metadata
+)
 
-#
-# class ReviewsTable(Base):
-#     __tablename__ = 'reviews'
-#
-#
-# class ProductsTable(Base):
-#     __tablename__ = 'products'
-#
-#
-# class ProductNames(Base):
-#     __tablename__ = 'product_names'
-#
-#
-# class FeatureNames(Base):
-#     __tablename__ = 'feature_names'
-#
-#
-# class ProductsFeaturesKeywords(Base):
-#     __tablename__ = 'product_features_keywords'
-#
-#
-# TUsers = UsersTable.__table__
-# TUserRoles = UserRolesTable.__table__
-# TReviews = ReviewsTable.__table__
-# TProducts = ProductsTable.__table__
-# TProductNames = ProductNames.__table__
-# TFeatureNames = FeatureNames.__table__
-# TProductsFeaturesKeywords = ProductsFeaturesKeywords.__table__
+reviews_suggestions_states = Table(
+    "reviews_suggestions_states",
+    metadata
+)

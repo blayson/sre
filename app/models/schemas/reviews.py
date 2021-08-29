@@ -1,6 +1,8 @@
 import datetime
 from typing import List, Optional
 
+from pydantic import Field
+
 from app.models.schemas.base import BaseSchemaORM, BaseSchema
 
 
@@ -69,13 +71,33 @@ class ReviewTable(BaseSchema):
 
 
 class ReviewPage(BaseSchemaORM):
-    data: List[ReviewTable]
+    data: Optional[List[ReviewTable]] = []
     page: Optional[int] = None
     size: Optional[int] = None
-    total: int
+    total: int = 0
     start: Optional[int] = None
     end: Optional[int] = None
     product: Optional[str] = None
     feature: Optional[str] = None
     text: Optional[str] = None
 
+
+class ProductCategory(BaseSchema):
+    id: int
+    product_category: Optional[str]
+
+
+class ProductCategories(BaseSchema):
+    __root__: List[ProductCategory]
+
+
+class UpdateData(BaseSchema):
+    new_value: str = Field(None, alias='newValue')
+    old_value: str = Field(None, alias='oldValue')
+
+
+class ReviewUpdates(BaseSchema):
+    index: int
+    sentiment: UpdateData
+    feature: UpdateData
+    product: UpdateData
