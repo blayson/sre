@@ -9,7 +9,7 @@ from app.services.reviews import ReviewService
 router = APIRouter()
 
 
-@router.get('', response_model=ReviewPage, response_model_exclude_none=True, response_model_exclude_unset=True)
+@router.get('', response_model=ReviewPage, response_model_exclude_unset=True)
 async def get_review_list(
         commons: dict = Depends(pagination),
         service: ReviewService = Depends()

@@ -2,7 +2,7 @@ import typing
 
 from sqlalchemy import select, func, types, insert
 from sqlalchemy.sql import expression
-from sqlalchemy.sql.functions import now
+from sqlalchemy.sql.functions import now, coalesce
 
 from app.models.domain.tables import products, reviews, feature_names, \
     product_categories, reviews_suggestions, reviews_suggestions_states
@@ -16,17 +16,18 @@ from app.repositories.base import BaseRepository
 class ReviewsRepository(BaseRepository):
 
     async def get_reviews(self, common_args: dict) -> typing.List[typing.Mapping]:
-        join = reviews.join(products,
-                            products.c.products_id == reviews.c.products_id,
-                            isouter=True).join(feature_names,
-                                               feature_names.c.feature_names_id == reviews.c.feature_names_id,
-                                               isouter=True)
+        join = reviews.join(products, products.c.products_id == reviews.c.products_id, isouter=True).join(
+            feature_names, feature_names.c.feature_names_id == reviews.c.feature_names_id, isouter=True).join(
+            reviews_suggestions, reviews_suggestions.c.reviews_id == reviews.c.reviews_id, isouter=True).join(
+            reviews_suggestions_states,
+            reviews_suggestions_states.c.reviews_suggestions_states_id == reviews_suggestions.c.reviews_suggestions_states_id, isouter=True)
 
         selectable = [reviews.c.text,
                       reviews.c.sentiment,
                       products.c.name.label('product'),
                       feature_names.c.text.label('feature'),
                       reviews.c.published_at,
+                      coalesce(reviews_suggestions_states.c.name, None).label('status'),
                       func.concat(expression.cast(reviews.c.reviews_id, types.Unicode),
                                   expression.cast("|", types.Unicode),
                                   expression.cast(feature_names.c.feature_names_id, types.Unicode)).label('id'),
@@ -43,7 +44,8 @@ class ReviewsRepository(BaseRepository):
             'product': products.c.name,
             'feature': feature_names.c.text,
             'text': reviews.c.text,
-            'pcat': products.c.product_categories_id
+            'pcat': products.c.product_categories_id,
+            'status': reviews_suggestions_states.c.name,
         }
 
         query = select(selectable).select_from(join)
@@ -70,6 +72,17 @@ class ReviewsRepository(BaseRepository):
         if common_args['pcat']:
             query = self.filter_by_pcategory(query, ('pcat', common_args['pcat']), filterable)
 
+        if common_args['status']:
+            # status_stmt = reviews_suggestions_states.select(reviews_suggestions_states.c.name)
+            # rows = await database.fetch_all(status_stmt)
+            # if common_args['status'] in rows:
+            query = self.filter_by_status(query, ("status", common_args['status']), filterable)
+            # else:
+            #     raise "There is no such status"
+        else:
+            query = query.where(reviews_suggestions.c.reviews_id.is_(None))
+        print(query)
+
         return await database.fetch_all(query)
 
     @staticmethod
@@ -86,16 +99,26 @@ class ReviewsRepository(BaseRepository):
     @staticmethod
     async def submit_update(review_id, updates: ReviewUpdates, user: User):
         query_states = select([reviews_suggestions_states.c.reviews_suggestions_states_id]).select_from(
-            reviews_suggestions_states).where(reviews_suggestions_states.c.name.ilike('waiting for approve'))
+            reviews_suggestions_states).where(reviews_suggestions_states.c.name.ilike('pending'))
 
         row = await database.fetch_one(query_states)
 
-        insert_stmt = insert(reviews_suggestions).values(users_id=user.users_id,
-                                                         suggestion_time=now(),
-                                                         reviews_id=review_id,
-                                                         sentiment=updates.sentiment.new_value,
-                                                         feature_names_id=updates.feature.new_value,
-                                                         reviews_suggestions_states_id=row[0].reviews_suggestions_states_id)
+        to_update = {"users_id": user.users_id, "suggestion_time": now(), "reviews_id": review_id,
+                     "reviews_suggestions_states_id": row[0]}
+        if updates.sentiment:
+            to_update["sentiment"] = updates.sentiment.new_value
+
+        if updates.feature:
+            select_stmt = select([feature_names.c.feature_names_id]).select_from(feature_names).where(
+                feature_names.c.text.ilike(updates.feature.new_value))
+
+            feature_names_id = await database.fetch_one(select_stmt)
+            to_update["feature_names_id"] = feature_names_id[0]
+
+        if updates.product:
+            to_update["product"] = ""
+
+        insert_stmt = insert(reviews_suggestions).values(**to_update)
 
         return await database.execute(insert_stmt)
         # do_update_stmt = insert_stmt.on_conflict_do_update(

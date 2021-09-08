@@ -39,3 +39,19 @@ class BaseRepository:
     def filter_by_pcategory(query, filter_args: tuple, filterable: dict):
         query = query.where(filterable[filter_args[0]] == filter_args[1])
         return query
+
+    @staticmethod
+    def filter_by_status(query, filter_args: tuple, filterable: dict):
+        if filter_args[1] == 'reviewed':
+            status = 'pending'
+        elif filter_args[1] == 'rejected':
+            status = 'rejected'
+        elif filter_args[1] == 'approved':
+            status = 'approved'
+        elif filter_args[1] == 'all':
+            return query  # TODO: return all reviews
+        else:
+            return query
+
+        query = query.where(filterable[filter_args[0]].ilike('%' + status + '%'))
+        return query

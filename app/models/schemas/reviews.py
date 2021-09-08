@@ -1,7 +1,7 @@
 import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from app.models.schemas.base import BaseSchemaORM, BaseSchema
 
@@ -68,6 +68,7 @@ class ReviewTable(BaseSchema):
     text: str
     sentiment: str
     published_at: datetime.date
+    status: Optional[str] = None
 
 
 class ReviewPage(BaseSchemaORM):
@@ -98,6 +99,6 @@ class UpdateData(BaseSchema):
 
 class ReviewUpdates(BaseSchema):
     index: int
-    sentiment: UpdateData
-    feature: UpdateData
-    product: UpdateData
+    sentiment: Optional[UpdateData]
+    feature: Optional[UpdateData]
+    product: Optional[UpdateData]
