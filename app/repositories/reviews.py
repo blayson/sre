@@ -47,6 +47,8 @@ class ReviewsRepository(BaseRepository):
             'pcat': products.c.product_categories_id,
             'status': reviews_suggestions_states.c.name,
         }
+        if common_args['status'] and common_args['status'] == 'reviewed':
+            selectable.append(reviews_suggestions.c.reviews_suggestions_id.label("suggestions_id"))
 
         query = select(selectable).select_from(join)
 

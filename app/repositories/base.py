@@ -1,7 +1,7 @@
 from sqlalchemy import asc, desc
 from sqlalchemy.sql import select
 
-from app.models.domain.tables import product_categories, products
+from app.models.domain.tables import product_categories, products, reviews_suggestions
 
 
 class BaseRepository:
@@ -42,15 +42,18 @@ class BaseRepository:
 
     @staticmethod
     def filter_by_status(query, filter_args: tuple, filterable: dict):
+        status = ''
         if filter_args[1] == 'reviewed':
-            status = 'pending'
+            return query.where(filterable[filter_args[0]].ilike('%pending%')
+                               | filterable[filter_args[0]].ilike('%approved%')
+                               | filterable[filter_args[0]].ilike('%rejected%'))
         elif filter_args[1] == 'rejected':
             status = 'rejected'
         elif filter_args[1] == 'approved':
             status = 'approved'
+        elif filter_args[1] == 'notReviewed':
+            return query.where(reviews_suggestions.c.reviews_id.is_(None))
         elif filter_args[1] == 'all':
-            return query  # TODO: return all reviews
-        else:
             return query
 
         query = query.where(filterable[filter_args[0]].ilike('%' + status + '%'))

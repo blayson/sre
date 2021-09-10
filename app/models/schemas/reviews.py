@@ -69,6 +69,7 @@ class ReviewTable(BaseSchema):
     sentiment: str
     published_at: datetime.date
     status: Optional[str] = None
+    suggestions_id: Optional[int] = None
 
 
 class ReviewPage(BaseSchemaORM):
