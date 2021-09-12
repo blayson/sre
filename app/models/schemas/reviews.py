@@ -70,6 +70,7 @@ class ReviewTable(BaseSchema):
     published_at: datetime.date
     status: Optional[str] = None
     suggestions_id: Optional[int] = None
+    suggestion_time: Optional[datetime.date] = None
 
 
 class ReviewPage(BaseSchemaORM):
@@ -93,13 +94,12 @@ class ProductCategories(BaseSchema):
     __root__: List[ProductCategory]
 
 
-class UpdateData(BaseSchema):
+class SuggestionData(BaseSchema):
     new_value: str = Field(None, alias='newValue')
     old_value: str = Field(None, alias='oldValue')
 
 
-class ReviewUpdates(BaseSchema):
-    index: int
-    sentiment: Optional[UpdateData]
-    feature: Optional[UpdateData]
-    product: Optional[UpdateData]
+class ReviewSuggestions(BaseSchema):
+    sentiment: Optional[SuggestionData]
+    feature: Optional[SuggestionData]
+    product: Optional[SuggestionData]

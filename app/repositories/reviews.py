@@ -8,14 +8,14 @@ from app.models.domain.tables import products, reviews, feature_names, \
     product_categories, reviews_suggestions, reviews_suggestions_states
 
 from app.core.db import database
-from app.models.schemas.reviews import ReviewUpdates
+from app.models.schemas.reviews import ReviewSuggestions
 from app.models.schemas.users import User
 from app.repositories.base import BaseRepository
 
 
 class ReviewsRepository(BaseRepository):
 
-    async def get_reviews(self, common_args: dict) -> typing.List[typing.Mapping]:
+    async def get_reviews(self, common_args: dict, user: User) -> typing.List[typing.Mapping]:
         join = reviews.join(products, products.c.products_id == reviews.c.products_id, isouter=True).join(
             feature_names, feature_names.c.feature_names_id == reviews.c.feature_names_id, isouter=True).join(
             reviews_suggestions, reviews_suggestions.c.reviews_id == reviews.c.reviews_id, isouter=True).join(
@@ -33,11 +33,16 @@ class ReviewsRepository(BaseRepository):
                                   expression.cast(feature_names.c.feature_names_id, types.Unicode)).label('id'),
                       func.count().over().label('total_items')]
 
+        def is_reviewed():
+            if common_args['status'] and common_args['status'] == 'reviewed':
+                return True
+            return False
+
         sortable = {
             'sentiment': reviews.c.sentiment,
             'product': products.c.name,
             'feature': feature_names.c.text,
-            'date': reviews.c.published_at
+            'date': reviews_suggestions.c.suggestion_time if is_reviewed() else reviews.c.published_at
         }
 
         filterable = {
@@ -47,8 +52,10 @@ class ReviewsRepository(BaseRepository):
             'pcat': products.c.product_categories_id,
             'status': reviews_suggestions_states.c.name,
         }
+
         if common_args['status'] and common_args['status'] == 'reviewed':
             selectable.append(reviews_suggestions.c.reviews_suggestions_id.label("suggestions_id"))
+            selectable.append(reviews_suggestions.c.suggestion_time)
 
         query = select(selectable).select_from(join)
 
@@ -75,15 +82,9 @@ class ReviewsRepository(BaseRepository):
             query = self.filter_by_pcategory(query, ('pcat', common_args['pcat']), filterable)
 
         if common_args['status']:
-            # status_stmt = reviews_suggestions_states.select(reviews_suggestions_states.c.name)
-            # rows = await database.fetch_all(status_stmt)
-            # if common_args['status'] in rows:
-            query = self.filter_by_status(query, ("status", common_args['status']), filterable)
-            # else:
-            #     raise "There is no such status"
+            query = self.filter_by_status(query, ("status", common_args['status']), filterable, user)
         else:
             query = query.where(reviews_suggestions.c.reviews_id.is_(None))
-        print(query)
 
         return await database.fetch_all(query)
 
@@ -99,7 +100,7 @@ class ReviewsRepository(BaseRepository):
         return await database.fetch_all(query)
 
     @staticmethod
-    async def submit_update(review_id, updates: ReviewUpdates, user: User):
+    async def submit_suggestions(review_id, suggestions: ReviewSuggestions, user: User):
         query_states = select([reviews_suggestions_states.c.reviews_suggestions_states_id]).select_from(
             reviews_suggestions_states).where(reviews_suggestions_states.c.name.ilike('pending'))
 
@@ -107,17 +108,17 @@ class ReviewsRepository(BaseRepository):
 
         to_update = {"users_id": user.users_id, "suggestion_time": now(), "reviews_id": review_id,
                      "reviews_suggestions_states_id": row[0]}
-        if updates.sentiment:
-            to_update["sentiment"] = updates.sentiment.new_value
+        if suggestions.sentiment:
+            to_update["sentiment"] = suggestions.sentiment.new_value
 
-        if updates.feature:
+        if suggestions.feature:
             select_stmt = select([feature_names.c.feature_names_id]).select_from(feature_names).where(
-                feature_names.c.text.ilike(updates.feature.new_value))
+                feature_names.c.text.ilike(suggestions.feature.new_value))
 
             feature_names_id = await database.fetch_one(select_stmt)
             to_update["feature_names_id"] = feature_names_id[0]
 
-        if updates.product:
+        if suggestions.product:
             to_update["product"] = ""
 
         insert_stmt = insert(reviews_suggestions).values(**to_update)
@@ -132,3 +133,7 @@ class ReviewsRepository(BaseRepository):
         #         feature_names_id=updates.feature.new_value,
         #         reviews_suggestions_states_id=row[0].reviews_suggestions_states_id
         #     ))
+
+    async def submit_no_suggestions(self, review_id, suggestions: ReviewSuggestions, user):
+        pass
+

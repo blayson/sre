@@ -1,7 +1,9 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends
 
 from app.core.deps import pagination
-from app.models.schemas.reviews import Review, ReviewPage, ProductCategories, ReviewUpdates
+from app.models.schemas.reviews import Review, ReviewPage, ProductCategories, ReviewSuggestions
 from app.models.schemas.users import User
 from app.services.auth import get_current_user
 from app.services.reviews import ReviewService
@@ -12,9 +14,10 @@ router = APIRouter()
 @router.get('', response_model=ReviewPage, response_model_exclude_unset=True)
 async def get_review_list(
         commons: dict = Depends(pagination),
-        service: ReviewService = Depends()
+        service: ReviewService = Depends(),
+        user: User = Depends(get_current_user)
 ):
-    review_list, total = await service.get_review_list(commons)
+    review_list, total = await service.get_review_list(commons, user)
     result = {"data": review_list,
               "total": total}
     for key, val in commons.items():
@@ -30,77 +33,79 @@ async def get_review_list(
     return await service.get_categories_list()
 
 
-@router.post('/{review_id}/updates/submit')
-async def update_review(
+@router.post('/{review_id}/suggestions/submit')
+async def submit_review_suggestions(
         review_id: int,
-        updates: ReviewUpdates,
+        suggestions: ReviewSuggestions,
         service: ReviewService = Depends(),
-        user: User = Depends(get_current_user)
+        user: User = Depends(get_current_user),
+        changes: Optional[bool] = True,
 ):
-    status = await service.submit_update(review_id, updates, user)
+    status = await service.submit_suggestions(review_id, suggestions, user, changes)
     if status:
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
 
 
-@router.post('/{review_id}/updates/approve')
-async def update_review(
+@router.post('/{review_id}/suggestions')
+async def get_review_suggestions(
         review_id: int,
         service: ReviewService = Depends()
 ):
-    status = await service.approve_update(review_id)
+    status = await service.get_review_suggestions(review_id)
     if status:
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
 
 
-@router.post('/{review_id}/updates/reject')
-async def update_review(
+@router.post('/suggestions')
+async def get_suggestions(
+        service: ReviewService = Depends()
+):
+    status = await service.get_all_suggestions()
+    if status:
+        return {'status': 'Ok'}
+    else:
+        return {'status': 'error'}
+
+
+@router.post('/suggestions/{suggestions_id}/approve')
+async def approve_review_suggestions(
         review_id: int,
         service: ReviewService = Depends()
 ):
-    status = await service.reject_update(review_id)
+    status = await service.approve_suggestions(review_id)
     if status:
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
 
 
-@router.post('/{review_id}/updates')
-async def update_review(
+@router.post('/suggestions/{suggestions_id}/reject')
+async def reject_review_suggestions(
         review_id: int,
         service: ReviewService = Depends()
 ):
-    status = await service.get_updates_by_review(review_id)
+    status = await service.reject_suggestions(review_id)
     if status:
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
 
 
-@router.post('/updates/{update_id}')
-async def update_review(
-        update_id: int,
-        service: ReviewService = Depends()
+@router.delete('/suggestions/{suggestions_id}/delete')
+async def delete_suggestions(
+        suggestions_id: int,
+        service: ReviewService = Depends(),
+        user: User = Depends(get_current_user),
 ):
-    status = await service.get_update_by_id(update_id)
-    if status:
-        return {'status': 'Ok'}
-    else:
-        return {'status': 'error'}
-
-
-@router.post('/updates')
-async def update_review(
-        service: ReviewService = Depends()
-):
-    status = await service.get_all_updates()
-    if status:
-        return {'status': 'Ok'}
-    else:
-        return {'status': 'error'}
+    await service.delete_suggestion(suggestions_id, user)
+    # if status:
+    #     return {'status': 'Ok'}
+    # else:
+    #     return {'status': 'error'}
 
 
 @router.get('/{review_id}', response_model=Review)
