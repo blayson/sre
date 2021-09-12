@@ -49,8 +49,3 @@ class ReviewService(BaseService):
     def get_update_by_id(self, review_id):
         pass
 
-    def get_all_suggestions(self):
-        pass
-
-    async def delete_suggestion(self, suggestions_id: int, user: User):
-        pass

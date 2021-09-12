@@ -13,7 +13,7 @@ database = databases.Database(settings.database_url)
 
 engine = create_engine(settings.database_url)
 
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Base = automap_base()
 
@@ -22,15 +22,16 @@ engine = create_engine(settings.database_url)
 metadata = MetaData()
 metadata.reflect(engine)  # only=['users', 'user_roles', 'reviews', 'feature_names', 'products']
 
-# def get_db():
-#     db: Session = SessionLocal()
-#     try:
-#         yield db
-#         db.commit()
-#     except Exception:
-#         db.rollback()
-#     finally:
-#         db.close()
-#
-#
-# db_session: ContextVar[Session] = ContextVar('db_session')
+
+def get_db():
+    db: Session = SessionLocal()
+    try:
+        yield db
+        db.commit()
+    except Exception:
+        db.rollback()
+    finally:
+        db.close()
+
+
+db_session: ContextVar[Session] = ContextVar('db_session')

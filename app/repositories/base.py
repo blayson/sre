@@ -1,7 +1,6 @@
 from sqlalchemy import asc, desc
-from sqlalchemy.sql import select
 
-from app.models.domain.tables import product_categories, products, reviews_suggestions
+from app.models.domain.tables import reviews_suggestions
 from app.models.schemas.users import User
 
 

@@ -60,17 +60,6 @@ async def get_review_suggestions(
         return {'status': 'error'}
 
 
-@router.post('/suggestions')
-async def get_suggestions(
-        service: ReviewService = Depends()
-):
-    status = await service.get_all_suggestions()
-    if status:
-        return {'status': 'Ok'}
-    else:
-        return {'status': 'error'}
-
-
 @router.post('/suggestions/{suggestions_id}/approve')
 async def approve_review_suggestions(
         review_id: int,
@@ -93,19 +82,6 @@ async def reject_review_suggestions(
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
-
-
-@router.delete('/suggestions/{suggestions_id}/delete')
-async def delete_suggestions(
-        suggestions_id: int,
-        service: ReviewService = Depends(),
-        user: User = Depends(get_current_user),
-):
-    await service.delete_suggestion(suggestions_id, user)
-    # if status:
-    #     return {'status': 'Ok'}
-    # else:
-    #     return {'status': 'error'}
 
 
 @router.get('/{review_id}', response_model=Review)
