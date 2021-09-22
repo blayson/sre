@@ -11,8 +11,8 @@ from app.models.validators import not_empty, normalize
 class BaseUserORM(BaseSchemaORM):
     name: str
     email: str
-    register_language: int = 2
-    user_roles_id: int = 1
+    register_language: int
+    user_roles_id: int
 
 
 class User(BaseUserORM):

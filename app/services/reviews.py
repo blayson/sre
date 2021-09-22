@@ -28,20 +28,6 @@ class ReviewService(BaseService):
 
     async def get_categories_list(self):
         return await self.repository.get_product_categories()
-        # return [ProductCategory(**row) for row in rows]
-
-    async def submit_suggestions(self, review_id, suggestions: ReviewSuggestions, user: User, changes: bool):
-        if changes:
-            rows = await self.repository.submit_suggestions(review_id, suggestions, user)
-        else:
-            rows = await self.repository.submit_no_suggestions(review_id, suggestions, user)
-        return rows
-
-    def approve_suggestions(self, review_id):
-        pass
-
-    def reject_suggestions(self, review_id):
-        pass
 
     def get_review_suggestions(self, review_id):
         pass

@@ -74,7 +74,7 @@ class ReviewTable(BaseSchema):
 
 
 class ReviewPage(BaseSchemaORM):
-    data: Optional[List[ReviewTable]] = []
+    data: Optional[List[ReviewTable]]
     page: Optional[int] = None
     size: Optional[int] = None
     total: int = 0
@@ -100,6 +100,7 @@ class SuggestionData(BaseSchema):
 
 
 class ReviewSuggestions(BaseSchema):
+    reviews_id: int
     sentiment: Optional[SuggestionData]
     feature: Optional[SuggestionData]
     product: Optional[SuggestionData]

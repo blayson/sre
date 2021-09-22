@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from asyncpg import Record
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from jose import jwt
 from passlib.hash import bcrypt
 
-from app.core.error_handlers import unauthorized_error, forbidden_error
+from app.core.error_handlers import forbidden_error
 from app.services.users import UsersService
 from app.settings import settings
 from app.models.schemas.users import User, UserInRegister
@@ -71,10 +71,3 @@ class AuthService:
             raise forbidden_error
 
         return self.create_token(user)
-
-
-async def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        service: AuthService = Depends()
-) -> User:
-    return await service.verify_token(token)
