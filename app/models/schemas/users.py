@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from passlib.handlers.bcrypt import bcrypt
 from pydantic import validator
@@ -11,8 +11,8 @@ from app.models.validators import not_empty, normalize
 class BaseUserORM(BaseSchemaORM):
     name: str
     email: str
-    register_language: int
-    user_roles_id: int
+    register_language: Optional[int] = 1
+    user_roles_id: Optional[int] = 1
 
 
 class User(BaseUserORM):

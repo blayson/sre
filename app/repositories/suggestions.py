@@ -25,8 +25,10 @@ class SuggestionRepository(BaseRepository):
 
     @staticmethod
     async def submit_suggestions(suggestions: ReviewSuggestions, user: User):
-        query_states = select([reviews_suggestions_states.c.reviews_suggestions_states_id]).select_from(
-            reviews_suggestions_states).where(reviews_suggestions_states.c.name.ilike('pending'))
+        selectable = [reviews_suggestions_states.c.reviews_suggestions_states_id]
+        query_states = select(selectable).select_from(
+            reviews_suggestions_states
+        ).where(reviews_suggestions_states.c.name.ilike('pending'))
 
         row = await database.fetch_one(query_states)
 
@@ -38,8 +40,11 @@ class SuggestionRepository(BaseRepository):
             to_update["sentiment"] = suggestions.sentiment.new_value
 
         if suggestions.feature:
-            select_stmt = select([feature_names.c.feature_names_id]).select_from(feature_names).where(
-                feature_names.c.text.ilike(suggestions.feature.new_value))
+            select_stmt = select([feature_names.c.feature_names_id]).select_from(
+                feature_names
+            ).where(
+                feature_names.c.text.ilike(suggestions.feature.new_value)
+            )
 
             feature_names_id = await database.fetch_one(select_stmt)
             to_update["feature_names_id"] = feature_names_id[0]

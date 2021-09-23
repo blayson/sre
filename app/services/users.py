@@ -37,5 +37,6 @@ class UsersService(BaseService):
         except UniqueViolationError as e:
             raise conflict_error
         except Exception as e:
+            print(e)
             raise internal_server_error
         return user

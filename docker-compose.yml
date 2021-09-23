@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/code
     ports:
-      - 5000:5000
+      - "5000:5000"
     env_file:
       - ./.env
     depends_on:
@@ -19,7 +19,7 @@ services:
     image: postgres
     container_name: pgdb
     ports:
-      - 7090:5432
+      - "7090:5432"
     volumes:
       - ./database/migration/:/tmp/db
     environment:
@@ -32,4 +32,4 @@ services:
     image: adminer
     container_name: adminer_mta
     ports:
-      - 7080:8080
+      - "7080:8080"

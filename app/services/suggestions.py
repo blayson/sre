@@ -21,7 +21,7 @@ class SuggestionService(BaseService):
             rows = await self.repository.submit_no_suggestions(suggestions, user)
         return rows
 
-    def get_all_suggestions(self):
+    def get_all_suggestions(self, user: User, commons: dict):
         pass
 
     def approve_suggestions(self, suggestions_id):

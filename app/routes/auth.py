@@ -22,4 +22,5 @@ async def register(
         user_register: UserInRegister,
         service: AuthService = Depends(),
 ) -> Token:
+    print(user_register)
     return await service.register_new_user(user_register)

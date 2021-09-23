@@ -3,23 +3,22 @@ from typing import Optional
 from fastapi import APIRouter, Depends
 
 from app.models.schemas.reviews import ReviewSuggestions
+from app.models.schemas.suggestions import UserReviewsSuggestions
 from app.models.schemas.users import User
-from app.core.deps import get_current_user, get_current_admin_user
+from app.core.deps import get_current_user, get_current_admin_user, pagination
 from app.services.suggestions import SuggestionService
 
 router = APIRouter()
 
 
-@router.post('')
+@router.get('', response_model=UserReviewsSuggestions)
 async def get_suggestions(
+        commons: dict = Depends(pagination),
         service: SuggestionService = Depends(),
-        user: User = Depends(get_current_user),
+        user: User = Depends(get_current_admin_user),
 ):
-    status = await service.get_all_suggestions()
-    if status:
-        return {'status': 'Ok'}
-    else:
-        return {'status': 'error'}
+    rows = await service.get_all_suggestions(user, commons)
+    return rows
 
 
 @router.post('/submit')

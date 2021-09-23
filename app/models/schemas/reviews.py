@@ -1,7 +1,7 @@
 import datetime
-from typing import List, Optional, Union
+from typing import List, Optional
 
-from pydantic import Field, validator
+from pydantic import Field
 
 from app.models.schemas.base import BaseSchemaORM, BaseSchema
 
