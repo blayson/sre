@@ -48,7 +48,7 @@ async def get_current_user(
 
 
 async def get_current_admin_user(current_user: User = Depends(get_current_user)):
-    if current_user.user_roles_id != 2:
+    if current_user.user_roles_id != 2 and current_user.user_roles_id != 3:
         raise HTTPException(status_code=403, detail="Forbidden")
     return current_user
 

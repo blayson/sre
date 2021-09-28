@@ -1,8 +1,6 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends
 
-from app.core.deps import pagination, get_current_user
+from app.common.deps import pagination, get_current_user
 from app.models.schemas.reviews import Review, ReviewPage, ProductCategories, ReviewSuggestions
 from app.models.schemas.users import User
 from app.services.reviews import ReviewService

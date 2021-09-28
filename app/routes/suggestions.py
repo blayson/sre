@@ -2,23 +2,27 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends
 
+from app.common.utils import propagate_args
 from app.models.schemas.reviews import ReviewSuggestions
-from app.models.schemas.suggestions import UserReviewsSuggestions
+from app.models.schemas.suggestions import SuggestionsForApprove
 from app.models.schemas.users import User
-from app.core.deps import get_current_user, get_current_admin_user, pagination
+from app.common.deps import get_current_user, get_current_admin_user, pagination
 from app.services.suggestions import SuggestionService
 
 router = APIRouter()
 
 
-@router.get('', response_model=UserReviewsSuggestions)
+@router.get('', response_model=SuggestionsForApprove, response_model_exclude_unset=True)
 async def get_suggestions(
-        commons: dict = Depends(pagination),
+        common_args: dict = Depends(pagination),
         service: SuggestionService = Depends(),
         user: User = Depends(get_current_admin_user),
 ):
-    rows = await service.get_all_suggestions(user, commons)
-    return rows
+    data = await service.get_all_suggestions(user, common_args)
+    resp = {'data': data,
+            'total': 1}
+    propagate_args(common_args, resp)
+    return resp
 
 
 @router.post('/submit')

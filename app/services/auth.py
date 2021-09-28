@@ -3,15 +3,15 @@ from datetime import datetime, timedelta
 from asyncpg import Record
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.hash import bcrypt
 
-from app.core.error_handlers import forbidden_error
+from app.common.error_handlers import forbidden_error, unauthorized_error
 from app.services.users import UsersService
 from app.settings import settings
 from app.models.schemas.users import User, UserInRegister
 from app.models.schemas.auth import Token
-from app.core.db import database
+from app.common.db import database
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/routes/v1/auth/login')
 
@@ -25,15 +25,15 @@ class AuthService:
         return bcrypt.verify(plain_password, hashed_password)
 
     async def verify_token(self, token: str) -> User:
-        # try:
-        payload = jwt.decode(
-            token,
-            settings.jwt_secret,
-            algorithms=[settings.jwt_algorithm],
-        )
-        # except JWTError:
-        #     raise unauthorized_error from None
-        #
+        try:
+            payload = jwt.decode(
+                token,
+                settings.jwt_secret,
+                algorithms=[settings.jwt_algorithm],
+            )
+        except JWTError:
+            raise unauthorized_error from None
+
         user_email = payload.get('user').get('email')
         user: Record = await self.users_service.get_user_by_email(user_email)
         return User.parse_obj(user)

@@ -5847,7 +5847,7 @@ INSERT INTO "product_features_keywords" ("products_id", "feature_names_id", "des
 (18010,19,'pád; ',1),
 (18010,9,'pěkný; náchylná poškrábání; krytý; atraktivní; konstrukce; ',1),
 (18010,0,'fotka; mobil; pohled zaujme oblý; rychlost telefonu; zaujme oblý telefonu; ',1),
-(18010,16,'apq8064 snapdragon quad; snapdragon quad core; výkonný; poměr cena výkon; qualcomm apq8064 snapdragon; ',1),
+(18010,16,'apq8064 snapdragon quad; snapdragon quad common; výkonný; poměr cena výkon; qualcomm apq8064 snapdragon; ',1),
 (18010,3,'moci; výdrž batérie; nízký; slušný; menší výdrž baterie; ',1),
 (18010,15,'fotka; foťák; natáčet kvalitě fullhd; průměrný; kvalitní; ',1),
 (18010,11,'hmotnost 139 gramů; velikost; ',1),

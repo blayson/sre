@@ -1,10 +1,10 @@
 from fastapi import Depends
 from sqlalchemy import delete, select, insert
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.sql.functions import now
 
-from app.core.db import get_db, database
-from app.models.domain.tables import reviews_suggestions, reviews_suggestions_states, feature_names
+from app.common.db import get_db, database
+from app.models.domain.tables import reviews_suggestions, reviews_suggestions_states, feature_names, reviews
 from app.models.schemas.reviews import ReviewSuggestions
 from app.models.schemas.users import User
 from app.repositories.base import BaseRepository
@@ -26,9 +26,8 @@ class SuggestionRepository(BaseRepository):
     @staticmethod
     async def submit_suggestions(suggestions: ReviewSuggestions, user: User):
         selectable = [reviews_suggestions_states.c.reviews_suggestions_states_id]
-        query_states = select(selectable).select_from(
-            reviews_suggestions_states
-        ).where(reviews_suggestions_states.c.name.ilike('pending'))
+        query_states = select(selectable).select_from(reviews_suggestions_states).where(
+            reviews_suggestions_states.c.name.ilike('pending'))
 
         row = await database.fetch_one(query_states)
 
@@ -40,12 +39,8 @@ class SuggestionRepository(BaseRepository):
             to_update["sentiment"] = suggestions.sentiment.new_value
 
         if suggestions.feature:
-            select_stmt = select([feature_names.c.feature_names_id]).select_from(
-                feature_names
-            ).where(
-                feature_names.c.text.ilike(suggestions.feature.new_value)
-            )
-
+            select_stmt = select([feature_names.c.feature_names_id]).select_from(feature_names).where(
+                feature_names.c.text.ilike(suggestions.feature.new_value))
             feature_names_id = await database.fetch_one(select_stmt)
             to_update["feature_names_id"] = feature_names_id[0]
 
@@ -67,3 +62,35 @@ class SuggestionRepository(BaseRepository):
 
     async def submit_no_suggestions(self, suggestions: ReviewSuggestions, user):
         pass
+
+    async def get_all_suggestions(self, user: User, common_args: dict):
+        fn1 = feature_names.alias('fn1')
+        fn2 = feature_names.alias('fn2')
+        rss = reviews_suggestions_states.alias('rss')
+
+        selectable = [reviews_suggestions.c.reviews_suggestions_id,
+                      reviews_suggestions.c.users_id,
+                      reviews_suggestions.c.suggestion_time,
+                      reviews_suggestions.c.reviews_id,
+                      reviews_suggestions.c.sentiment,
+                      reviews_suggestions.c.feature_names_id,
+                      fn2.c.text.label('feature'),
+                      reviews.c.sentiment.label('old_sentiment'),
+                      reviews.c.feature_names_id.label('old_feature_names_id'),
+                      fn1.c.text.label('old_feature'),
+                      rss.c.name.label('state')]
+
+        stmt = select(selectable).select_from(reviews_suggestions).join(
+            reviews, reviews_suggestions.c.reviews_id == reviews.c.reviews_id, isouter=True).join(
+            fn1, fn1.c.feature_names_id == reviews.c.feature_names_id, isouter=True).join(
+            fn2, fn2.c.feature_names_id == reviews_suggestions.c.feature_names_id, isouter=True).join(
+            rss, reviews_suggestions.c.reviews_suggestions_states_id == rss.c.reviews_suggestions_states_id
+        )
+
+        if common_args['start'] or common_args['end']:
+            stmt = self.paginate(stmt, common_args['start'], common_args['end'], False)
+        else:
+            stmt = self.paginate(stmt, common_args['page'], common_args['size'], True)
+
+        stmt.where(reviews_suggestions.c.reviews_suggestions_states_id == 1)
+        return database.iterate(stmt)

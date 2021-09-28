@@ -1,7 +1,7 @@
 import datetime
-from typing import Optional
+from typing import Optional, List
 
-from app.models.schemas.base import BaseSchema
+from app.models.schemas.base import BaseSchema, CommonArgs
 
 
 class Review(BaseSchema):
@@ -24,10 +24,14 @@ class Changes(BaseSchema):
     product: Optional[ChangesValues]
 
 
-class UserReviewsSuggestions(BaseSchema):
+class SuggestionForApprove(BaseSchema):
     reviews_suggestions_id: int
-    user: User
+    users_id: int
     suggestion_time: datetime.date
-    review: Review
+    reviews_id: int
     changes: Changes
-    reviews_suggestions_states: str
+    state: str
+
+
+class SuggestionsForApprove(CommonArgs):
+    data: List[SuggestionForApprove]

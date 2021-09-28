@@ -11,3 +11,10 @@ def setup_logger():
     logger.addHandler(file_handler)
 
     return logger
+
+
+def propagate_args(common_args, resp):
+    for key, val in common_args.items():
+        if val is not None:
+            resp[key] = val
+    return resp

@@ -5,8 +5,8 @@ from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from app.routes.api import router
-from app.core.db import database
-from app.core.error_handlers import http_error_handler, http422_error_handler
+from app.common.db import database
+from app.common.error_handlers import http_error_handler, http422_error_handler
 from app.settings import settings
 
 
