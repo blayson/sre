@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import Field
 
-from app.models.schemas.base import BaseSchemaORM, BaseSchema
+from app.models.schemas.base import BaseSchemaORM, BaseSchema, CommonArgs
 
 
 class BaseFeature(BaseSchemaORM):
@@ -73,16 +73,8 @@ class ReviewTable(BaseSchema):
     suggestion_time: Optional[datetime.date] = None
 
 
-class ReviewPage(BaseSchemaORM):
+class ReviewPage(BaseSchemaORM, CommonArgs):
     data: Optional[List[ReviewTable]]
-    page: Optional[int] = None
-    size: Optional[int] = None
-    total: int = 0
-    start: Optional[int] = None
-    end: Optional[int] = None
-    product: Optional[str] = None
-    feature: Optional[str] = None
-    text: Optional[str] = None
 
 
 class ProductCategory(BaseSchema):
@@ -103,4 +95,3 @@ class ReviewSuggestions(BaseSchema):
     reviews_id: int
     sentiment: Optional[SuggestionData]
     feature: Optional[SuggestionData]
-    product: Optional[SuggestionData]

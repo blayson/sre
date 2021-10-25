@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from app.common.deps import pagination, get_current_user
+from app.common.utils import propagate_args
 from app.models.schemas.reviews import Review, ReviewPage, ProductCategories, ReviewSuggestions
 from app.models.schemas.users import User
 from app.services.reviews import ReviewService
@@ -17,9 +18,7 @@ async def get_review_list(
     review_list, total = await service.get_review_list(commons, user)
     result = {"data": review_list,
               "total": total}
-    for key, val in commons.items():
-        if val is not None:
-            result[key] = val
+    propagate_args(common_args=commons, resp=result)
     return result
 
 

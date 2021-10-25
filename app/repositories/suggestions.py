@@ -1,7 +1,7 @@
 from fastapi import Depends
-from sqlalchemy import delete, select, insert
+from sqlalchemy import delete, select, insert, update
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql.functions import now
+from sqlalchemy.sql.functions import now, func
 
 from app.common.db import get_db, database
 from app.models.domain.tables import reviews_suggestions, reviews_suggestions_states, feature_names, reviews
@@ -43,15 +43,12 @@ class SuggestionRepository(BaseRepository):
                 feature_names.c.text.ilike(suggestions.feature.new_value))
             feature_names_id = await database.fetch_one(select_stmt)
             to_update["feature_names_id"] = feature_names_id[0]
-
-        if suggestions.product:
-            to_update["product"] = ""
+            # to_update["feature_names_id"] = suggestions.feature.new_value
 
         insert_stmt = insert(reviews_suggestions).values(**to_update)
 
-        return await database.execute(insert_stmt)
         # do_update_stmt = insert_stmt.on_conflict_do_update(
-        #     constraint='reviews_id ',
+        #     constraint='reviews_id',
         #     set_=dict(
         #         users_id=user.users_id,
         #         suggestion_time=now(),
@@ -59,6 +56,8 @@ class SuggestionRepository(BaseRepository):
         #         feature_names_id=updates.feature.new_value,
         #         reviews_suggestions_states_id=row[0].reviews_suggestions_states_id
         #     ))
+
+        return await database.execute(insert_stmt)
 
     async def submit_no_suggestions(self, suggestions: ReviewSuggestions, user):
         pass
@@ -78,7 +77,9 @@ class SuggestionRepository(BaseRepository):
                       reviews.c.sentiment.label('old_sentiment'),
                       reviews.c.feature_names_id.label('old_feature_names_id'),
                       fn1.c.text.label('old_feature'),
-                      rss.c.name.label('state')]
+                      rss.c.name.label('state'),
+                      func.count().over().label('total_items'),
+                      reviews.c.text]
 
         stmt = select(selectable).select_from(reviews_suggestions).join(
             reviews, reviews_suggestions.c.reviews_id == reviews.c.reviews_id, isouter=True).join(

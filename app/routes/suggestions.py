@@ -18,9 +18,9 @@ async def get_suggestions(
         service: SuggestionService = Depends(),
         user: User = Depends(get_current_admin_user),
 ):
-    data = await service.get_all_suggestions(user, common_args)
+    data, total = await service.get_all_suggestions(user, common_args)
     resp = {'data': data,
-            'total': 1}
+            'total': total}
     propagate_args(common_args, resp)
     return resp
 

@@ -24,13 +24,16 @@ class SuggestionService(BaseService):
 
     async def get_all_suggestions(self, user: User, common_args: dict):
         result = []
+        total = 0
         if common_args['status'] == 'forApprove':
             async for row in await self.repository.get_all_suggestions(user, common_args):
+                total = row[11]
                 suggestion = SuggestionForApprove(**{
                     'reviews_suggestions_id': row[0],
                     'users_id': row[1],
                     'suggestion_time': row[2],
                     'reviews_id': row[3],
+                    'text': row[12],
                     'changes': {
                         'sentiment': {
                             'old_value': row[7],
@@ -45,7 +48,7 @@ class SuggestionService(BaseService):
                 })
                 result.append(suggestion)
 
-        return result
+        return result, total
 
     def approve_suggestions(self, suggestions_id):
         pass

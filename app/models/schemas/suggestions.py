@@ -14,14 +14,13 @@ class User(BaseSchema):
 
 
 class ChangesValues(BaseSchema):
-    old_value: str
-    new_value: str
+    old_value: str = None
+    new_value: str = None
 
 
 class Changes(BaseSchema):
     sentiment: Optional[ChangesValues]
-    feature_names: Optional[ChangesValues]
-    product: Optional[ChangesValues]
+    feature: Optional[ChangesValues]
 
 
 class SuggestionForApprove(BaseSchema):
@@ -31,6 +30,7 @@ class SuggestionForApprove(BaseSchema):
     reviews_id: int
     changes: Changes
     state: str
+    text: str
 
 
 class SuggestionsForApprove(CommonArgs):
