@@ -17,10 +17,10 @@ class SuggestionService(BaseService):
 
     async def submit_suggestions(self, suggestions: ReviewSuggestions, user: User, changes: bool):
         if changes:
-            rows = await self.repository.submit_suggestions(suggestions, user)
+            status = await self.repository.submit_suggestions(suggestions, user)
         else:
-            rows = await self.repository.submit_no_suggestions(suggestions, user)
-        return rows
+            status = await self.repository.submit_no_suggestions(suggestions, user)
+        return status
 
     async def get_all_suggestions(self, user: User, common_args: dict):
         result = []

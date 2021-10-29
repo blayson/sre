@@ -39,7 +39,7 @@ class AuthService:
         return User.parse_obj(user)
 
     @classmethod
-    def create_token(cls, user: Record) -> Token:
+    def create_token(cls, user: User) -> Token:
         user_data = User.parse_obj(user)
         now = datetime.utcnow()
         payload = {

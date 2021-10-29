@@ -56,11 +56,22 @@ class SuggestionRepository(BaseRepository):
         #         feature_names_id=updates.feature.new_value,
         #         reviews_suggestions_states_id=row[0].reviews_suggestions_states_id
         #     ))
-
-        return await database.execute(insert_stmt)
+        try:
+            await database.execute(insert_stmt)
+            return True
+        except Exception:
+            return False
 
     async def submit_no_suggestions(self, suggestions: ReviewSuggestions, user):
-        pass
+        stmt = update(reviews).where(
+            reviews.c.reviews_id == suggestions.reviews_id
+        ).values(reviews_final_state_id=1)
+
+        try:
+            await database.execute(stmt)
+            return True
+        except Exception:
+            return False
 
     async def get_all_suggestions(self, user: User, common_args: dict):
         fn1 = feature_names.alias('fn1')
