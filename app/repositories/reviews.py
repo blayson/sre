@@ -7,7 +7,7 @@ from sqlalchemy.sql.functions import now, coalesce
 from app.models.domain.tables import products, reviews, feature_names, \
     product_categories, reviews_suggestions, reviews_suggestions_states
 
-from app.common.db import database
+from app.utils.db import database
 from app.models.schemas.users import User
 from app.repositories.base import BaseRepository
 

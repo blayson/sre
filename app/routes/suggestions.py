@@ -1,15 +1,17 @@
+import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response, status
 
-from app.common.utils import propagate_args
+from app.utils.utils import propagate_args
 from app.models.schemas.reviews import ReviewSuggestions
 from app.models.schemas.suggestions import SuggestionsForApprove
 from app.models.schemas.users import User
-from app.common.deps import get_current_user, get_current_admin_user, pagination
+from app.utils.deps import get_current_user, get_current_admin_user, pagination
 from app.services.suggestions import SuggestionService
 
 router = APIRouter()
+logger = logging.getLogger("sre_api")
 
 
 @router.get('', response_model=SuggestionsForApprove, response_model_exclude_unset=True)
@@ -32,8 +34,8 @@ async def submit_review_suggestions(
         user: User = Depends(get_current_user),
         changes: Optional[bool] = True,
 ):
-    status = await service.submit_suggestions(suggestions, user, changes)
-    if status:
+    reviews_id = await service.submit_suggestions(suggestions, user, changes)
+    if reviews_id:
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
@@ -45,34 +47,27 @@ async def delete_suggestions(
         service: SuggestionService = Depends(),
         user: User = Depends(get_current_user),
 ):
-    status = await service.delete_suggestion(suggestions_id, user)
-    if status:
+    reviews_id = await service.delete_suggestion(suggestions_id, user)
+    if reviews_id:
         return {'status': 'Ok'}
     else:
         return {'status': 'error'}
 
 
-@router.get('/{suggestions_id}/approve')
+@router.put('/{suggestions_id}/approve')
 async def approve_review_suggestions(
+        suggestions_id: int,
+        response: Response,
+        service: SuggestionService = Depends(),
+        user: User = Depends(get_current_admin_user),
+):
+    await service.approve_suggestion(suggestions_id)
+
+
+@router.put('/{suggestions_id}/reject')
+async def reject_review_suggestions(
         suggestions_id: int,
         service: SuggestionService = Depends(),
         user: User = Depends(get_current_admin_user),
 ):
-    status = await service.approve_suggestions(suggestions_id)
-    if status:
-        return {'status': 'Ok'}
-    else:
-        return {'status': 'error'}
-
-
-@router.post('/{suggestions_id}/reject')
-async def reject_review_suggestions(
-        suggestions_id: int,
-        service: SuggestionService = Depends(),
-        user: User = Depends(get_current_user),
-):
-    status = await service.reject_suggestions(suggestions_id)
-    if status:
-        return {'status': 'Ok'}
-    else:
-        return {'status': 'error'}
+    await service.reject_suggestion(suggestions_id)

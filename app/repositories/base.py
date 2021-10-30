@@ -1,10 +1,32 @@
+from enum import Enum
+
 from sqlalchemy import asc, desc
 
 from app.models.domain.tables import reviews_suggestions, reviews
 from app.models.schemas.users import User
 
 
+class ReviewsSuggestionsStatesEnum(Enum):
+    PENDING = 1
+    APPROVED = 2
+    REJECTED = 3
+
+    def __str__(self):
+        return f'{self.name}'.lower().capitalize()
+
+
+class ReviewsFinalStateEnum(Enum):
+    CORRECT = 1
+    CORRECTED = 2
+
+    def __str__(self):
+        return f'{self.name}'.lower().capitalize()
+
+
 class BaseRepository:
+
+    # def __init__(self, session: Session = Depends(get_db)):
+    #     self.session = session
 
     @staticmethod
     def paginate(query, start: int, end: int, page: bool):
@@ -44,9 +66,9 @@ class BaseRepository:
     def filter_by_status(query, filter_args: tuple, filterable: dict, user: User):
         status = ''
         if filter_args[1] == 'reviewed':
-            return query.where(filterable[filter_args[0]].ilike('%pending%')
-                               | filterable[filter_args[0]].ilike('%approved%')
-                               | filterable[filter_args[0]].ilike('%rejected%'))\
+            return query.where(filterable[filter_args[0]].ilike(f'%{str(ReviewsSuggestionsStatesEnum.PENDING)}%')
+                               | filterable[filter_args[0]].ilike(f'%{str(ReviewsSuggestionsStatesEnum.APPROVED)}%')
+                               | filterable[filter_args[0]].ilike(f'%{str(ReviewsSuggestionsStatesEnum.REJECTED)}%'))\
                 .where(reviews_suggestions.c.users_id == user.users_id)
         elif filter_args[1] == 'rejected':
             status = 'rejected'

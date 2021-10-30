@@ -9,5 +9,5 @@ uvicorn.run(
     port=settings.server_port,
     reload=True,
     log_level='debug',
-    debug=True
+    debug=settings.debug
 )

@@ -1,6 +1,6 @@
 from sqlalchemy import Table
 
-from app.common.db import metadata
+from app.utils.db import metadata
 
 products = Table(
     "products",

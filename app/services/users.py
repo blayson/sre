@@ -1,7 +1,7 @@
 from asyncpg import Record, UniqueViolationError
 
-from app.common.db import database
-from app.common.error_handlers import internal_server_error, conflict_error
+from app.utils.db import database
+from app.utils.error_handlers import internal_server_error, conflict_error
 from app.models.domain.tables import users
 from app.models.schemas.users import UserInRegister
 from app.services.base import BaseService

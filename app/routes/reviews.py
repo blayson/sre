@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
-from app.common.deps import pagination, get_current_user
-from app.common.utils import propagate_args
+from app.utils.deps import pagination, get_current_user
+from app.utils.utils import propagate_args
 from app.models.schemas.reviews import Review, ReviewPage, ProductCategories, ReviewSuggestions
 from app.models.schemas.users import User
 from app.services.reviews import ReviewService

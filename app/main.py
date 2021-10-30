@@ -1,3 +1,6 @@
+from logging.config import dictConfig
+import logging
+
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
@@ -5,10 +8,10 @@ from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 
 from app.routes.api import router
-from app.common.db import database
-from app.common.error_handlers import http_error_handler, http422_error_handler
+from app.utils.db import database
+from app.utils.error_handlers import http_error_handler, http422_error_handler
 from app.settings import settings
-
+from .logger import LogConfig
 
 def create_application() -> FastAPI:
     application = FastAPI(
@@ -41,5 +44,6 @@ def create_application() -> FastAPI:
 
     return application
 
-
+# Setup logger
+dictConfig(LogConfig().dict())
 app = create_application()

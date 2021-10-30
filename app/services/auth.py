@@ -6,12 +6,12 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from passlib.hash import bcrypt
 
-from app.common.error_handlers import forbidden_error, unauthorized_error
+from app.utils.error_handlers import forbidden_error, unauthorized_error
 from app.services.users import UsersService
 from app.settings import settings
 from app.models.schemas.users import User, UserInRegister
 from app.models.schemas.auth import Token
-from app.common.db import database
+from app.utils.db import database
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/routes/v1/auth/login')
 

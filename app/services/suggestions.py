@@ -1,10 +1,14 @@
+import logging
+
 from fastapi import Depends
 
 from app.models.schemas.reviews import ReviewSuggestions
 from app.models.schemas.suggestions import SuggestionForApprove
 from app.models.schemas.users import User
-from app.repositories.suggestions import SuggestionRepository
+from app.repositories.suggestions import SuggestionRepository, ReviewsSuggestionsStatesEnum
 from app.services.base import BaseService
+
+logger = logging.getLogger("sre_api")
 
 
 class SuggestionService(BaseService):
@@ -26,7 +30,9 @@ class SuggestionService(BaseService):
         result = []
         total = 0
         if common_args['status'] == 'forApprove':
-            async for row in await self.repository.get_all_suggestions(user, common_args):
+            async for row in await self.repository.get_all_suggestions(user,
+                                                                       common_args,
+                                                                       ReviewsSuggestionsStatesEnum.PENDING.value):
                 total = row[11]
                 suggestion = SuggestionForApprove(**{
                     'reviews_suggestions_id': row[0],
@@ -50,8 +56,8 @@ class SuggestionService(BaseService):
 
         return result, total
 
-    def approve_suggestions(self, suggestions_id):
-        pass
+    async def approve_suggestion(self, suggestions_id):
+        return await self.repository.approve_suggestion(suggestions_id)
 
-    def reject_suggestions(self, suggestions_id):
-        pass
+    async def reject_suggestion(self, suggestions_id):
+        return await self.repository.reject_suggestion(suggestions_id)
