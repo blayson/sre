@@ -29,21 +29,6 @@ async def get_review_list(
     return await service.get_categories_list()
 
 
-# @router.post('/{review_id}/suggestions/submit')
-# async def submit_review_suggestions(
-#         review_id: int,
-#         suggestions: ReviewSuggestions,
-#         service: ReviewService = Depends(),
-#         user: User = Depends(get_current_user),
-#         changes: Optional[bool] = True,
-# ):
-#     status = await service.submit_suggestions(review_id, suggestions, user, changes)
-#     if status:
-#         return {'status': 'Ok'}
-#     else:
-#         return {'status': 'error'}
-
-
 @router.get('/{review_id}/suggestions')
 async def get_review_suggestions(
         review_id: int,

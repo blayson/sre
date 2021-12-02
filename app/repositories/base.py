@@ -75,7 +75,8 @@ class BaseRepository:
         elif filter_args[1] == 'approved':
             status = 'approved'
         elif filter_args[1] == 'notReviewed':
-            return query.where(reviews_suggestions.c.reviews_id.is_(None) & reviews.c.reviews_final_state_id.is_(None))
+            return query.where((reviews_suggestions.c.reviews_id.is_(None))
+                               & (reviews.c.reviews_final_state_id.is_(None)))
         elif filter_args[1] == 'all':
             return query
 

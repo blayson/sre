@@ -13,6 +13,7 @@ from app.utils.error_handlers import http_error_handler, http422_error_handler
 from app.settings import settings
 from .logger import LogConfig
 
+
 def create_application() -> FastAPI:
     application = FastAPI(
         title=settings.project_name,
@@ -43,6 +44,7 @@ def create_application() -> FastAPI:
     application.include_router(router, prefix=settings.api_prefix)
 
     return application
+
 
 # Setup logger
 dictConfig(LogConfig().dict())

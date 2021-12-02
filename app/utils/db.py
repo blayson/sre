@@ -20,7 +20,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 # Base.prepare(engine, reflect=True)
 
 metadata = MetaData()
-metadata.reflect(engine)  # only=['users', 'user_roles', 'reviews', 'feature_names', 'products']
+# there is a way to reflect only some tables ```only=['users', 'user_roles', 'reviews', 'feature_names', 'products']```
+metadata.reflect(engine)
 
 
 def get_db():

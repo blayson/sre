@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Optional
 
-from pydantic import Field
+from pydantic import Field, validator
 
 from app.models.schemas.base import BaseSchemaORM, BaseSchema, CommonArgs
 
@@ -89,6 +89,17 @@ class ProductCategories(BaseSchema):
 class SuggestionData(BaseSchema):
     new_value: str = Field(None, alias='newValue')
     old_value: str = Field(None, alias='oldValue')
+
+    @validator("old_value", "new_value",  pre=True, always=True)
+    def empty_str_to_none(cls, v):
+        if v == '':
+            return None
+        return v
+
+    @validator("new_value", "old_value", pre=True, always=True)
+    def validate_str(cls, v):
+        if v:
+            return v.strip()
 
 
 class ReviewSuggestions(BaseSchema):
