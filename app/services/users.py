@@ -1,10 +1,14 @@
-from asyncpg import Record, UniqueViolationError
+from typing import List, Optional
 
-from app.utils.db import database
-from app.utils.error_handlers import internal_server_error, conflict_error
+from asyncpg import Record, UniqueViolationError
+from databases import Database
+from fastapi import Depends
+
 from app.models.domain.tables import users
-from app.models.schemas.users import UserInRegister
+from app.models.schemas.users import User, UserInRegister
 from app.services.base import BaseService
+from app.utils.db import database, get_db
+from app.utils.error_handlers import conflict_error, internal_server_error
 
 
 class UsersService(BaseService):
@@ -13,27 +17,31 @@ class UsersService(BaseService):
         query = users.select().where(email == users.c.email)
         return await database.fetch_one(query)
 
-    @classmethod
-    async def get_user_by_id(cls, user_id: str) -> Record:
+    @staticmethod
+    async def get_user_by_id(user_id: str) -> Record:
         query = users.select().where(user_id == users.c.user_id)
         return await database.fetch_one(query)
 
-    @classmethod
-    async def get_all_users(cls) -> Record:
+    @staticmethod
+    async def get_all_users() -> List[Record]:
         query = users.select()
         return await database.fetch_all(query)
 
-    @classmethod
-    async def create_user(cls, user_data: UserInRegister) -> Record:
+    @staticmethod
+    async def create_user(user_data: UserInRegister) -> Record:
         try:
-            query = users.insert().returning(
-                users.c.users_id,
-                users.c.email,
-                users.c.name,
-                users.c.user_roles_id,
-                users.c.register_language
-            ).values(**user_data.dict())
-            user: Record = await database.fetch_one(query)
+            query = (
+                users.insert()
+                .returning(
+                    users.c.users_id,
+                    users.c.email,
+                    users.c.name,
+                    users.c.user_roles_id,
+                    users.c.register_language,
+                )
+                .values(**user_data.dict())
+            )
+            user: Optional[Record] = await database.fetch_one(query)
         except UniqueViolationError as e:
             raise conflict_error
         except Exception as e:

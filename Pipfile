@@ -4,6 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+black = "*"
+isort = "*"
 
 [packages]
 sqlalchemy = "*"
@@ -21,7 +23,10 @@ python-jose = "*"
 email-validator = "*"
 python-multipart = "*"
 pydantic = "*"
+requests = "*"
 asyncpg = "*"
+pytest-asyncio = "*"
+httpx = "*"
 
 [requires]
 python_version = "3.9.7"

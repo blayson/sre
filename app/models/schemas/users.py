@@ -5,7 +5,7 @@ from passlib.handlers.bcrypt import bcrypt
 from pydantic import validator
 
 from app.models.schemas.base import BaseSchemaORM
-from app.models.validators import not_empty, normalize
+from app.models.validators import normalize, not_empty
 
 
 class BaseUserORM(BaseSchemaORM):
@@ -27,19 +27,21 @@ class UserInRegister(BaseUserORM):
     password: str
     registered: datetime = None
 
-    _not_empty = validator('name', 'email', allow_reuse=True, pre=True, always=True)(not_empty)
-    _normalize_name = validator('name', allow_reuse=True)(normalize)
+    _not_empty = validator("name", "email", allow_reuse=True, pre=True, always=True)(
+        not_empty
+    )
+    _normalize_name = validator("name", allow_reuse=True)(normalize)
 
     @validator("name", pre=True, always=True)
     def length_name(cls, v: str):
         if len(v) > 64:
-            raise ValueError('must be less then 64 symbols')
+            raise ValueError("must be less then 64 symbols")
         return v
 
     @validator("password", pre=True, always=True)
     def hash_password(cls, v: str):  # noqa: N805, WPS110
         if len(v) < 5:
-            raise ValueError('minimum 5 characters required')
+            raise ValueError("minimum 5 characters required")
         return bcrypt.hash(v)
 
     @validator("registered", pre=True, always=True)

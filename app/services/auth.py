@@ -1,19 +1,20 @@
 from datetime import datetime, timedelta
 
 from asyncpg import Record
+from databases import Database
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 from passlib.hash import bcrypt
 
-from app.utils.error_handlers import forbidden_error, unauthorized_error
+from app.models.schemas.auth import Token
+from app.models.schemas.users import User, UserInRegister
 from app.services.users import UsersService
 from app.settings import settings
-from app.models.schemas.users import User, UserInRegister
-from app.models.schemas.auth import Token
-from app.utils.db import database
+from app.utils.db import database, get_db
+from app.utils.error_handlers import forbidden_error, unauthorized_error
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/routes/v1/auth/login')
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/routes/v1/auth/login")
 
 
 class AuthService:
@@ -34,20 +35,20 @@ class AuthService:
         except JWTError:
             raise unauthorized_error from None
 
-        user_email = payload.get('user').get('email')
+        user_email = payload.get("user").get("email")
         user: Record = await self.users_service.get_user_by_email(user_email)
         return User.parse_obj(user)
 
     @classmethod
-    def create_token(cls, user: User) -> Token:
+    def create_token(cls, user: Record) -> Token:
         user_data = User.parse_obj(user)
         now = datetime.utcnow()
         payload = {
-            'iat': now,
-            'nbf': now,
-            'exp': now + timedelta(seconds=settings.jwt_expires_s),
-            'sub': str(user_data.users_id),
-            'user': user_data.dict(),
+            "iat": now,
+            "nbf": now,
+            "exp": now + timedelta(seconds=settings.jwt_expires_s),
+            "sub": str(user_data.users_id),
+            "user": user_data.dict(),
         }
         token = jwt.encode(
             payload,
@@ -56,18 +57,22 @@ class AuthService:
         )
         return Token(token=token)
 
-    @database.transaction()
     async def register_new_user(self, user_data: UserInRegister) -> Token:
-        user = await self.users_service.create_user(user_data)
-        return self.create_token(user)
+        async with database.transaction():
+            user = await self.users_service.create_user(user_data)
+            return self.create_token(user)
 
-    async def authenticate_user(self, email: str, password: str, ) -> Token:
+    async def authenticate_user(
+        self,
+        email: str,
+        password: str,
+    ) -> Token:
         user = await self.users_service.get_user_by_email(email)
 
         if not user:
             raise forbidden_error
 
-        if not self.verify_password(password, user['password']):
+        if not self.verify_password(password, user["password"]):
             raise forbidden_error
 
         return self.create_token(user)

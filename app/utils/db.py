@@ -1,9 +1,9 @@
 from contextvars import ContextVar
 
 import databases
-from sqlalchemy import create_engine, Table, MetaData
+from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.settings import settings
 
@@ -35,4 +35,4 @@ def get_db():
         db.close()
 
 
-db_session: ContextVar[Session] = ContextVar('db_session')
+db_session: ContextVar[Session] = ContextVar("db_session")

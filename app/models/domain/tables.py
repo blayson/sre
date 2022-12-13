@@ -12,15 +12,9 @@ product_names = Table(
     metadata,
 )
 
-product_categories = Table(
-    "product_categories",
-    metadata
-)
+product_categories = Table("product_categories", metadata)
 
-product_category_names = Table(
-    "product_category_names",
-    metadata
-)
+product_category_names = Table("product_category_names", metadata)
 
 reviews = Table(
     "reviews",
@@ -47,12 +41,6 @@ user_roles = Table(
     metadata,
 )
 
-reviews_suggestions = Table(
-    "reviews_suggestions",
-    metadata
-)
+reviews_suggestions = Table("reviews_suggestions", metadata)
 
-reviews_suggestions_states = Table(
-    "reviews_suggestions_states",
-    metadata
-)
+reviews_suggestions_states = Table("reviews_suggestions_states", metadata)

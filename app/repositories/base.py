@@ -2,8 +2,9 @@ from enum import Enum
 
 from sqlalchemy import asc, desc
 
-from app.models.domain.tables import reviews_suggestions, reviews
+from app.models.domain.tables import reviews, reviews_suggestions
 from app.models.schemas.users import User
+from app.utils.constants import UserReviewState
 
 
 class ReviewsSuggestionsStatesEnum(Enum):
@@ -12,7 +13,7 @@ class ReviewsSuggestionsStatesEnum(Enum):
     REJECTED = 3
 
     def __str__(self):
-        return f'{self.name}'.lower().capitalize()
+        return f"{self.name}".lower().capitalize()
 
 
 class ReviewsFinalStateEnum(Enum):
@@ -20,14 +21,10 @@ class ReviewsFinalStateEnum(Enum):
     CORRECTED = 2
 
     def __str__(self):
-        return f'{self.name}'.lower().capitalize()
+        return f"{self.name}".lower().capitalize()
 
 
 class BaseRepository:
-
-    # def __init__(self, session: Session = Depends(get_db)):
-    #     self.session = session
-
     @staticmethod
     def paginate(query, start: int, end: int, page: bool):
         if page:
@@ -38,24 +35,24 @@ class BaseRepository:
 
     @staticmethod
     def apply_sort(query, sort_arg: str, sortable: dict):
-        sort_arr = sort_arg.split(',')
+        sort_arr = sort_arg.split(",")
         for sort in sort_arr:
-            sort_parsed = sort.split(' ')
+            sort_parsed = sort.split(" ")
             column = sort_parsed[0]
             try:
                 sort_type = sort_parsed[1]
             except IndexError:
-                sort_type = 'asc'
+                sort_type = "asc"
 
-            if sort_type == 'asc':
+            if sort_type == "asc":
                 query = query.order_by(asc(sortable[column]))
-            elif sort_type == 'desc':
+            elif sort_type == "desc":
                 query = query.order_by(desc(sortable[column]))
         return query
 
     @staticmethod
     def filter(query, filter_args: tuple, filterable: dict):
-        return query.where(filterable[filter_args[0]].ilike('%' + filter_args[1] + '%'))
+        return query.where(filterable[filter_args[0]].ilike("%" + filter_args[1] + "%"))
 
     @staticmethod
     def filter_by_pcategory(query, filter_args: tuple, filterable: dict):
@@ -64,21 +61,30 @@ class BaseRepository:
 
     @staticmethod
     def filter_by_status(query, filter_args: tuple, filterable: dict, user: User):
-        status = ''
-        if filter_args[1] == 'reviewed':
-            return query.where(filterable[filter_args[0]].ilike(f'%{str(ReviewsSuggestionsStatesEnum.PENDING)}%')
-                               | filterable[filter_args[0]].ilike(f'%{str(ReviewsSuggestionsStatesEnum.APPROVED)}%')
-                               | filterable[filter_args[0]].ilike(f'%{str(ReviewsSuggestionsStatesEnum.REJECTED)}%'))\
-                .where(reviews_suggestions.c.users_id == user.users_id)
-        elif filter_args[1] == 'rejected':
-            status = 'rejected'
-        elif filter_args[1] == 'approved':
-            status = 'approved'
-        elif filter_args[1] == 'notReviewed':
-            return query.where((reviews_suggestions.c.reviews_id.is_(None))
-                               & (reviews.c.reviews_final_state_id.is_(None)))
-        elif filter_args[1] == 'all':
+        status = ""
+        if filter_args[1] == UserReviewState.REVIEWED.value:
+            return query.where(
+                filterable[filter_args[0]].ilike(
+                    f"%{str(ReviewsSuggestionsStatesEnum.PENDING)}%"
+                )
+                | filterable[filter_args[0]].ilike(
+                    f"%{str(ReviewsSuggestionsStatesEnum.APPROVED)}%"
+                )
+                | filterable[filter_args[0]].ilike(
+                    f"%{str(ReviewsSuggestionsStatesEnum.REJECTED)}%"
+                )
+            ).where(reviews_suggestions.c.users_id == user.users_id)
+        elif filter_args[1] == UserReviewState.REJECTED.value:
+            status = UserReviewState.REJECTED.value
+        elif filter_args[1] == UserReviewState.APPROVED.value:
+            status = UserReviewState.APPROVED.value
+        elif filter_args[1] == UserReviewState.NOT_REVIEWED.value:
+            return query.where(
+                (reviews_suggestions.c.reviews_id.is_(None))
+                & (reviews.c.reviews_final_state_id.is_(None))
+            )
+        elif filter_args[1] == "all":
             return query
 
-        query = query.where(filterable[filter_args[0]].ilike('%' + status + '%'))
+        query = query.where(filterable[filter_args[0]].ilike("%" + status + "%"))
         return query

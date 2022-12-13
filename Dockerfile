@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.9.7-slim-buster
 
 RUN mkdir /code
 WORKDIR /code
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get -y dist-upgrade && apt install -y netcat
 RUN pip install --upgrade pipenv
 COPY Pipfile /code/
 COPY Pipfile.lock /code/
-RUN pipenv install --ignore-pipfile --deploy --system
+RUN pipenv install
 COPY . /code/
 
 ENTRYPOINT ["/code/entrypoint.sh"]

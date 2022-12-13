@@ -1,9 +1,9 @@
 import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import Field, validator
 
-from app.models.schemas.base import BaseSchemaORM, BaseSchema, CommonArgs
+from app.models.schemas.base import BaseSchema, BaseSchemaORM, CommonArgs
 
 
 class BaseFeature(BaseSchemaORM):
@@ -61,6 +61,16 @@ class ReviewProduct(Review):
     product_name: str
 
 
+class SuggestionSentiment(BaseSchema):
+    old: str
+    new: Optional[str]
+
+
+class SuggestionFeature(BaseSchema):
+    old: str
+    new: Optional[str]
+
+
 class ReviewTable(BaseSchema):
     id: str
     feature: str
@@ -71,6 +81,8 @@ class ReviewTable(BaseSchema):
     status: Optional[str] = None
     suggestions_id: Optional[int] = None
     suggestion_time: Optional[datetime.date] = None
+    suggestion_feature_name: Union[Optional[int], SuggestionFeature]
+    suggestion_sentiment: Union[Optional[str], SuggestionSentiment]
 
 
 class ReviewPage(BaseSchemaORM, CommonArgs):
@@ -87,12 +99,12 @@ class ProductCategories(BaseSchema):
 
 
 class SuggestionData(BaseSchema):
-    new_value: str = Field(None, alias='newValue')
-    old_value: str = Field(None, alias='oldValue')
+    new_value: str = Field(None, alias="newValue")
+    old_value: str = Field(None, alias="oldValue")
 
-    @validator("old_value", "new_value",  pre=True, always=True)
+    @validator("old_value", "new_value", pre=True, always=True)
     def empty_str_to_none(cls, v):
-        if v == '':
+        if v == "":
             return None
         return v
 

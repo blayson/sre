@@ -19,4 +19,3 @@ services:
     container_name: adminer_mta
     ports:
       - "7080:8080"
-
