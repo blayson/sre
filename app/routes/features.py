@@ -7,9 +7,7 @@ from app.utils.constants import LanguagesQueryParameter
 router = APIRouter()
 
 
-@router.get(
-    "/names", response_model=FeatureNamesResponse
-)
+@router.get("/names", response_model=FeatureNamesResponse)
 async def get_all_feature_names(
     lang: LanguagesQueryParameter,
     service: FeaturesService = Depends(),

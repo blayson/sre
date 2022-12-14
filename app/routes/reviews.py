@@ -31,13 +31,9 @@ async def get_review_list(service: ReviewService = Depends()):
     return await service.get_categories_list()
 
 
-@router.get("/{review_id}/suggestions")
-async def get_review_suggestions(review_id: int, service: ReviewService = Depends()):
-    status = await service.get_review_suggestions(review_id)
-    if status:
-        return {"status": "Ok"}
-    else:
-        return {"status": "error"}
+# @router.get("/{review_id}/suggestions")
+# async def get_review_suggestions(review_id: int, service: ReviewService = Depends()):
+#     status = await service.get_review_suggestions(review_id)
 
 
 @router.get("/{review_id}", response_model=Review)

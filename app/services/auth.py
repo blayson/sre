@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 from asyncpg import Record
-from databases import Database
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -11,7 +10,7 @@ from app.models.schemas.auth import Token
 from app.models.schemas.users import User, UserInRegister
 from app.services.users import UsersService
 from app.settings import settings
-from app.utils.db import database, get_db
+from app.utils.db import database
 from app.utils.error_handlers import forbidden_error, unauthorized_error
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/routes/v1/auth/login")

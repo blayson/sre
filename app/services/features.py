@@ -1,4 +1,4 @@
-from typing import Mapping, Optional, List
+from typing import List
 
 from fastapi import Depends
 
@@ -12,6 +12,11 @@ class FeaturesService(BaseService):
     def __init__(self, repository: FeaturesRepository = Depends()):
         self.repository: FeaturesRepository = repository
 
-    async def get_all_feature_names_by_lang(self, lang: LanguagesQueryParameter) -> List[FeatureNamesData]:
+    async def get_all_feature_names_by_lang(
+        self, lang: LanguagesQueryParameter
+    ) -> List[FeatureNamesData]:
         features_dict = await self.repository.get_all_feature_names_by_lang(lang)
-        return [FeatureNamesData(value=int(feature_id), label=feature_table.text) for feature_id, feature_table in features_dict.items()]
+        return [
+            FeatureNamesData(value=int(feature_id), label=feature_table.text)
+            for feature_id, feature_table in features_dict.items()
+        ]

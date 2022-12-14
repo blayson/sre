@@ -1,10 +1,10 @@
+import logging
 from typing import List, Mapping, Optional, Tuple
 
+import sqlalchemy.exc
 from fastapi import Depends
 
 from app.models.schemas.reviews import (
-    ProductCategory,
-    ReviewSuggestions,
     ReviewTable,
     SuggestionFeature,
     SuggestionSentiment,
@@ -13,6 +13,10 @@ from app.models.schemas.users import User
 from app.repositories.reviews import ReviewsRepository
 from app.services.base import BaseService
 from app.utils.constants import UserReviewState
+from app.utils.error_handlers import internal_server_error
+
+
+logger = logging.getLogger("sre_api")
 
 
 class ReviewService(BaseService):
@@ -20,13 +24,22 @@ class ReviewService(BaseService):
         self.repository: ReviewsRepository = repository
 
     async def get_review_by_id(self, review_id: int) -> Optional[Mapping]:
-        return await self.repository.get_review_by_id(review_id)
+        try:
+            return await self.repository.get_review_by_id(review_id)
+        except sqlalchemy.exc.DatabaseError as exc:
+            logger.exception("Exception during getting reviews")
+            raise internal_server_error from exc
 
     async def get_review_list(
         self, common_args: dict, user: User
     ) -> Tuple[List[ReviewTable], int]:
-        rows = await self.repository.get_reviews(common_args, user)
-        feature_names = await self.repository.preload_feature_names()
+        try:
+            rows = await self.repository.get_reviews(common_args, user)
+            feature_names = await self.repository.preload_feature_names()
+        except sqlalchemy.exc.DatabaseError as exc:
+            logger.exception("Exception during getting reviews")
+            raise internal_server_error from exc
+
         try:
             total = rows[0].total_items
             r_list = []
@@ -57,10 +70,8 @@ class ReviewService(BaseService):
             return [], 0
 
     async def get_categories_list(self):
-        return await self.repository.get_product_categories()
-
-    def get_review_suggestions(self, review_id):
-        pass
-
-    def get_update_by_id(self, review_id):
-        pass
+        try:
+            return await self.repository.get_product_categories()
+        except sqlalchemy.exc.DatabaseError as exc:
+            logger.exception("Exception during getting categories")
+            raise internal_server_error from exc

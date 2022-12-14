@@ -157,11 +157,13 @@ class ReviewsRepository(BaseRepository):
             query = query.where(reviews_suggestions.c.reviews_id.is_(None))
         return query
 
-    async def get_review_by_id(self, review_id: int) -> typing.Optional[typing.Mapping]:
+    @staticmethod
+    async def get_review_by_id(review_id: int) -> typing.Optional[typing.Mapping]:
         query = reviews.select().where(review_id == reviews.c.reviews_id)
         return await database.fetch_one(query)
 
-    async def get_product_categories(self):
+    @staticmethod
+    async def get_product_categories():
         query = select(
             [
                 product_categories.c.product_categories_id.label("id"),

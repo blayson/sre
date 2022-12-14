@@ -10,13 +10,14 @@ from app.utils.db import database
 
 
 class FeaturesRepository(BaseRepository):
-    async def get_all_feature_names_by_lang(self, lang: LanguagesQueryParameter) -> typing.Dict[str, FeatureTable]:
+    async def get_all_feature_names_by_lang(
+        self, lang: LanguagesQueryParameter
+    ) -> typing.Dict[str, FeatureTable]:
         feature_stmt = select(
             [feature_names.c.text, feature_names.c.feature_names_id]
         ).select_from(
             feature_names.join(
-                languages,
-                languages.c.languages_id == feature_names.c.languages_id
+                languages, languages.c.languages_id == feature_names.c.languages_id
             )
         )
 

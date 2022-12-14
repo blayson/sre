@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import List
 
 from app.models.schemas.base import BaseSchema
 
@@ -15,4 +15,3 @@ class FeatureNamesData(BaseSchema):
 
 class FeatureNamesResponse(BaseSchema):
     data: List[FeatureNamesData]
-

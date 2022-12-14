@@ -3,9 +3,9 @@ from enum import Enum
 from sqlalchemy import asc, desc
 from sqlalchemy.orm import Query
 
-from app.models.domain.tables import reviews, reviews_suggestions, languages
+from app.models.domain.tables import languages, reviews, reviews_suggestions
 from app.models.schemas.users import User
-from app.utils.constants import UserReviewState, LanguagesQueryParameter
+from app.utils.constants import LanguagesQueryParameter, UserReviewState
 
 
 class ReviewsSuggestionsStatesEnum(Enum):

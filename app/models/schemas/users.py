@@ -2,9 +2,9 @@ from datetime import datetime
 from typing import List, Optional
 
 from passlib.handlers.bcrypt import bcrypt
-from pydantic import validator
+from pydantic import validator, root_validator
 
-from app.models.schemas.base import BaseSchemaORM
+from app.models.schemas.base import BaseSchema, BaseSchemaORM
 from app.models.validators import normalize, not_empty
 
 
@@ -20,7 +20,7 @@ class User(BaseUserORM):
 
 
 class UserList(BaseSchemaORM):
-    __root__: List[User]
+    data: List[User]
 
 
 class UserInRegister(BaseUserORM):
@@ -47,3 +47,19 @@ class UserInRegister(BaseUserORM):
     @validator("registered", pre=True, always=True)
     def default_datetime(cls, value: datetime) -> datetime:
         return value or datetime.utcnow()
+
+
+class UserDataToUpdate(BaseSchema):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    user_roles_id: Optional[int] = None
+
+    @root_validator()
+    def check_at_least_one(cls, values):
+        if (
+            values.get("name") is None
+            and values.get("email") is None
+            and values.get("user_roles_id") is None
+        ):
+            raise ValueError("either name, email or user_roles_id is required")
+        return values
