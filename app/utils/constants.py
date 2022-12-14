@@ -6,3 +6,9 @@ class UserReviewState(Enum):
     NOT_REVIEWED = "notReviewed"
     APPROVED = "approved"
     REJECTED = "rejected"
+
+
+class LanguagesQueryParameter(Enum):
+    CZECH = "czech"
+    ENGLISH = "english"
+    GERMAN = "german"

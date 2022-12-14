@@ -31,6 +31,11 @@ feature_names = Table(
     metadata,
 )
 
+languages = Table(
+    "languages",
+    metadata
+)
+
 users = Table(
     "users",
     metadata,

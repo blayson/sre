@@ -1,10 +1,11 @@
 from enum import Enum
 
 from sqlalchemy import asc, desc
+from sqlalchemy.orm import Query
 
-from app.models.domain.tables import reviews, reviews_suggestions
+from app.models.domain.tables import reviews, reviews_suggestions, languages
 from app.models.schemas.users import User
-from app.utils.constants import UserReviewState
+from app.utils.constants import UserReviewState, LanguagesQueryParameter
 
 
 class ReviewsSuggestionsStatesEnum(Enum):
@@ -88,3 +89,7 @@ class BaseRepository:
 
         query = query.where(filterable[filter_args[0]].ilike("%" + status + "%"))
         return query
+
+    @staticmethod
+    def filter_by_lang(query: Query, lang: LanguagesQueryParameter):
+        return query.where(languages.c.title_english.ilike(lang.value))
