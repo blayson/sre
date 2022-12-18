@@ -75,3 +75,6 @@ class AuthService:
             raise forbidden_error
 
         return self.create_token(user)
+
+    async def change_password(self, email: str, password: str):
+        pass

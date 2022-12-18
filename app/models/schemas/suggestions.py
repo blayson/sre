@@ -26,6 +26,7 @@ class Changes(BaseSchema):
 class SuggestionForApprove(BaseSchema):
     reviews_suggestions_id: int
     users_id: int
+    user_name: str
     suggestion_time: datetime.date
     reviews_id: int
     changes: Changes

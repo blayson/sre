@@ -7,6 +7,7 @@ from databases.backends.postgres import Record
 from app.models.domain.tables import users
 from app.models.schemas.users import UserInRegister
 from app.repositories.base import BaseRepository
+from app.utils.constants import USER_ROLES_MAP
 from app.utils.db import database
 from app.utils.error_handlers import conflict_error, internal_server_error
 
@@ -26,6 +27,8 @@ class UsersRepository(BaseRepository):
 
     @staticmethod
     async def create_user(user_data: UserInRegister) -> Record:
+        user_data.user_roles_id = USER_ROLES_MAP[user_data.user_role]
+        del user_data.user_role
         try:
             query = (
                 users.insert()

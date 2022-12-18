@@ -6,6 +6,7 @@ from pydantic import validator, root_validator
 
 from app.models.schemas.base import BaseSchema, BaseSchemaORM
 from app.models.validators import normalize, not_empty
+from app.utils.constants import UserRoles
 
 
 class BaseUserORM(BaseSchemaORM):
@@ -19,13 +20,22 @@ class User(BaseUserORM):
     users_id: int
 
 
+class UserWithRole(BaseSchemaORM):
+    users_id: int
+    name: str
+    email: str
+    register_language: Optional[int] = 1
+    user_role: str
+
+
 class UserList(BaseSchemaORM):
-    data: List[User]
+    data: List[UserWithRole]
 
 
 class UserInRegister(BaseUserORM):
     password: str
     registered: datetime = None
+    user_role: UserRoles = UserRoles.USER.value
 
     _not_empty = validator("name", "email", allow_reuse=True, pre=True, always=True)(
         not_empty
@@ -52,14 +62,14 @@ class UserInRegister(BaseUserORM):
 class UserDataToUpdate(BaseSchema):
     name: Optional[str] = None
     email: Optional[str] = None
-    user_roles_id: Optional[int] = None
+    user_role: Optional[str] = None
 
     @root_validator()
     def check_at_least_one(cls, values):
         if (
             values.get("name") is None
             and values.get("email") is None
-            and values.get("user_roles_id") is None
+            and values.get("user_role") is None
         ):
             raise ValueError("either name, email or user_roles_id is required")
         return values

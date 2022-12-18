@@ -49,7 +49,7 @@ async def update_user(
     service: AdminService = Depends(),
     current_user: User = Depends(get_current_admin_user),
 ):
-    uid = await service.update_user(user_id, user_data_to_update, current_user)
+    uid = await service.update_user(user_id, user_data_to_update)
     if uid:
         return {"status": "Ok"}
     else:
@@ -58,13 +58,13 @@ async def update_user(
 
 @router.put(
     "/suggestions/{suggestions_id}/approve",
-    dependencies=[Depends(get_current_admin_user)],
 )
 async def approve_review_suggestions(
     suggestions_id: int,
     service: AdminService = Depends(),
+    user: User = Depends(get_current_admin_user),
 ):
-    sid = await service.approve_suggestion(suggestions_id)
+    sid = await service.approve_suggestion(suggestions_id, user)
     if sid:
         return {"status": "Ok"}
     else:
@@ -73,13 +73,13 @@ async def approve_review_suggestions(
 
 @router.put(
     "/suggestions/{suggestions_id}/reject",
-    dependencies=[Depends(get_current_admin_user)],
 )
 async def reject_review_suggestions(
     suggestions_id: int,
     service: AdminService = Depends(),
+    user: User = Depends(get_current_admin_user),
 ):
-    sid = await service.reject_suggestion(suggestions_id)
+    sid = await service.reject_suggestion(suggestions_id, user)
     if sid:
         return {"status": "Ok"}
     else:

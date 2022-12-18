@@ -60,17 +60,12 @@ class ReviewsRepository(BaseRepository):
             func.count().over().label("total_items"),
         ]
 
-        def is_reviewed():
-            if common_args["status"] and common_args["status"] == "reviewed":
-                return True
-            return False
-
         sortable = {
             "sentiment": reviews.c.sentiment,
             "product": products.c.name,
             "feature": feature_names.c.text,
             "date": reviews_suggestions.c.suggestion_time
-            if is_reviewed()
+            if common_args["status"] and common_args["status"] == "reviewed"
             else reviews.c.published_at,
         }
 
@@ -119,7 +114,6 @@ class ReviewsRepository(BaseRepository):
         query: Query,
         sortable: dict = None,
         filterable: dict = None,
-        *args,
         **kwargs
     ) -> Query:
         if common_args["start"] or common_args["end"]:

@@ -23,11 +23,11 @@ class AdminService(BaseService):
     async def get_all_users(self, user: User) -> UserList:
         return UserList(data=await self.repository.get_all_users(user))
 
-    async def approve_suggestion(self, suggestions_id: int):
-        return await self.repository.approve_suggestion(suggestions_id)
+    async def approve_suggestion(self, suggestions_id: int, user: User):
+        return await self.repository.approve_suggestion(suggestions_id, user)
 
-    async def reject_suggestion(self, suggestions_id: int):
-        return await self.repository.reject_suggestion(suggestions_id)
+    async def reject_suggestion(self, suggestions_id: int, user: User):
+        return await self.repository.reject_suggestion(suggestions_id, user)
 
     async def get_all_suggestions(self, user: User, common_args: dict):
         result = []
@@ -49,17 +49,16 @@ class AdminService(BaseService):
                             "feature": {"old_value": row[9], "new_value": row[6]},
                         },
                         "state": row[10],
+                        "user_name": row[13],
                     }
                 )
                 result.append(suggestion)
 
         return result, total
 
-    async def update_user(
-        self, user_id: int, user_data: UserDataToUpdate, current_user: User
-    ):
+    async def update_user(self, user_id: int, user_data: UserDataToUpdate):
         try:
-            return await self.repository.update_user(user_id, user_data, current_user)
+            return await self.repository.update_user(user_id, user_data)
         except DatabaseError as exc:
             logger.exception("Exception during updating user %s", user_id)
             raise internal_server_error from exc
