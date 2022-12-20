@@ -28,28 +28,14 @@ class SuggestionRepository(BaseRepository):
         )
         return await database.fetch_val(stmt)
 
-    @staticmethod
-    async def _prepare_suggestions(suggestions: ReviewSuggestions, to_update: dict):
-        stmt = (
-            select(
-                [
-                    reviews.c.sentiment,
-                    feature_names.c.text,
-                    feature_names.c.feature_names_id,
-                ]
-            )
-            .select_from(reviews)
-            .join(
-                feature_names,
-                reviews.c.feature_names_id == feature_names.c.feature_names_id,
-            )
-            .where(reviews.c.reviews_id == suggestions.reviews_id)
-        )
-        record = await database.fetch_one(stmt)
-        initial_sentiment = record[0]
-        initial_feature_text = record[1]
-        initial_feature_id = record[2]
-
+    async def _prepare_suggestions(
+        self, suggestions: ReviewSuggestions, to_update: dict
+    ):
+        (
+            initial_sentiment,
+            initial_feature_text,
+            initial_feature_id,
+        ) = await self._preload_initial_values(suggestions)
         if (
             suggestions.sentiment
             and suggestions.sentiment.new_value is not None
@@ -105,8 +91,42 @@ class SuggestionRepository(BaseRepository):
 
         return await database.fetch_val(stmt)
 
+    async def edit_suggestion(
+        self, suggestions_id: int, corrections: ReviewSuggestions
+    ):
+        (
+            initial_sentiment,
+            initial_feature_text,
+            initial_feature_id,
+        ) = await self._preload_initial_values(corrections)
+        to_update = {}
+        if corrections.sentiment and corrections.sentiment.new_value is not None:
+            to_update["sentiment"] = corrections.sentiment.new_value
+            to_update["old_sentiment"] = initial_sentiment
+
+        if corrections.feature and corrections.feature.new_value is not None:
+            select_stmt = (
+                select([feature_names.c.feature_names_id])
+                .select_from(feature_names)
+                .where(feature_names.c.text.ilike(corrections.feature.new_value))
+            )
+            feature_names_id = await database.fetch_val(select_stmt)
+            to_update["feature_names_id"] = feature_names_id
+            to_update["old_feature_names_id"] = initial_feature_id
+
+        if to_update.get("feature_names_id") or to_update.get("sentiment"):
+            stmt = (
+                update(reviews_suggestions)
+                .where(reviews_suggestions.c.reviews_suggestions_id == suggestions_id)
+                .values(**to_update)
+                .returning(reviews_suggestions.c.reviews_suggestions_id)
+            )
+            return await database.fetch_val(stmt)
+        else:
+            return None
+
     @staticmethod
-    async def edit_suggestion(suggestions_id: int, corrections: ReviewSuggestions):
+    async def _preload_initial_values(corrections: ReviewSuggestions):
         stmt = (
             select(
                 [
@@ -123,29 +143,4 @@ class SuggestionRepository(BaseRepository):
             .where(reviews.c.reviews_id == corrections.reviews_id)
         )
         record = await database.fetch_one(stmt)
-        initial_sentiment = record[0]
-        initial_feature_id = record[2]
-        to_update = {}
-        if corrections.sentiment and corrections.sentiment.new_value is not None:
-            to_update["sentiment"] = corrections.sentiment.new_value
-            to_update["old_sentiment"] = initial_sentiment
-
-        if corrections.feature and corrections.feature.new_value is not None:
-            select_stmt = (
-                select([feature_names.c.feature_names_id])
-                .select_from(feature_names)
-                .where(feature_names.c.text.ilike(corrections.feature.new_value))
-            )
-            feature_names_id = await database.fetch_val(select_stmt)
-            to_update["feature_names_id"] = feature_names_id
-            to_update["old_feature_names_id"] = initial_feature_id
-        if to_update.get("feature_names_id") or to_update.get("sentiment"):
-            stmt = (
-                update(reviews_suggestions)
-                .where(reviews_suggestions.c.reviews_suggestions_id == suggestions_id)
-                .values(**to_update)
-                .returning(reviews_suggestions.c.reviews_suggestions_id)
-            )
-            return await database.fetch_val(stmt)
-        else:
-            return None
+        return record[0], record[1], record[2]
