@@ -15,7 +15,9 @@ class FeaturesService(BaseService):
     async def get_all_feature_names_by_lang(
         self, lang: LanguagesQueryParameter, review_id: int, query: str
     ) -> List[FeatureNamesData]:
-        features_dict = await self.repository.get_all_feature_names_by_lang(lang, review_id, query.lower())
+        features_dict = await self.repository.get_all_feature_names_by_lang(
+            lang, review_id, query.lower()
+        )
         return [
             FeatureNamesData(value=int(feature_id), label=feature_table.text)
             for feature_id, feature_table in features_dict.items()

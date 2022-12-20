@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from passlib.handlers.bcrypt import bcrypt
-from pydantic import validator, root_validator
+from pydantic import root_validator, validator
 
 from app.models.schemas.base import BaseSchema, BaseSchemaORM
 from app.models.validators import normalize, not_empty

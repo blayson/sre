@@ -1,7 +1,7 @@
 from passlib.handlers.bcrypt import bcrypt
 from pydantic import validator
 
-from app.models.schemas.base import BaseSchemaORM, BaseSchema
+from app.models.schemas.base import BaseSchema, BaseSchemaORM
 
 
 class Token(BaseSchemaORM):

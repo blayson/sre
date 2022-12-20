@@ -71,7 +71,9 @@ class AdminService(BaseService):
             logger.exception("Exception during deleting user %s", user_id)
             raise internal_server_error from exc
 
-    async def change_user_password(self, user_id: int, changed_password: ChangedPasswordIn):
+    async def change_user_password(
+        self, user_id: int, changed_password: ChangedPasswordIn
+    ):
         try:
             return await self.repository.change_user_password(user_id, changed_password)
         except DatabaseError as exc:

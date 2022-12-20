@@ -15,7 +15,6 @@ from app.services.base import BaseService
 from app.utils.constants import UserReviewState
 from app.utils.error_handlers import internal_server_error
 
-
 logger = logging.getLogger("sre_api")
 
 
@@ -59,7 +58,10 @@ class ReviewService(BaseService):
                 if suggestion_feature_name_id := review_table.suggestion_feature_name:
                     new_feature_name = feature_names[suggestion_feature_name_id].text
                 review_table.suggestion_feature_name = SuggestionFeature(
-                    old=feature_names[old_suggestion_feature_name_id].text if old_suggestion_feature_name_id else review_table.feature, new=new_feature_name
+                    old=feature_names[old_suggestion_feature_name_id].text
+                    if old_suggestion_feature_name_id
+                    else review_table.feature,
+                    new=new_feature_name,
                 )
                 review_table.suggestion_sentiment = SuggestionSentiment(
                     old=old_suggestion_sentiment or review_table.sentiment,

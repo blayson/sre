@@ -31,7 +31,13 @@ class SuggestionRepository(BaseRepository):
     @staticmethod
     async def _prepare_suggestions(suggestions: ReviewSuggestions, to_update: dict):
         stmt = (
-            select([reviews.c.sentiment, feature_names.c.text, feature_names.c.feature_names_id])
+            select(
+                [
+                    reviews.c.sentiment,
+                    feature_names.c.text,
+                    feature_names.c.feature_names_id,
+                ]
+            )
             .select_from(reviews)
             .join(
                 feature_names,
@@ -102,7 +108,13 @@ class SuggestionRepository(BaseRepository):
     @staticmethod
     async def edit_suggestion(suggestions_id: int, corrections: ReviewSuggestions):
         stmt = (
-            select([reviews.c.sentiment, feature_names.c.text, feature_names.c.feature_names_id])
+            select(
+                [
+                    reviews.c.sentiment,
+                    feature_names.c.text,
+                    feature_names.c.feature_names_id,
+                ]
+            )
             .select_from(reviews)
             .join(
                 feature_names,
@@ -114,17 +126,11 @@ class SuggestionRepository(BaseRepository):
         initial_sentiment = record[0]
         initial_feature_id = record[2]
         to_update = {}
-        if (
-            corrections.sentiment
-            and corrections.sentiment.new_value is not None
-        ):
+        if corrections.sentiment and corrections.sentiment.new_value is not None:
             to_update["sentiment"] = corrections.sentiment.new_value
             to_update["old_sentiment"] = initial_sentiment
 
-        if (
-            corrections.feature
-            and corrections.feature.new_value is not None
-        ):
+        if corrections.feature and corrections.feature.new_value is not None:
             select_stmt = (
                 select([feature_names.c.feature_names_id])
                 .select_from(feature_names)

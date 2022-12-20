@@ -2,7 +2,7 @@ import logging
 import typing
 
 from databases.backends.postgres import Record
-from sqlalchemy import func, select, update, delete, or_
+from sqlalchemy import delete, func, or_, select, update
 from sqlalchemy.orm import Query
 
 from app.models.domain.tables import (
@@ -10,8 +10,8 @@ from app.models.domain.tables import (
     reviews,
     reviews_suggestions,
     reviews_suggestions_states,
-    users,
     user_roles,
+    users,
 )
 from app.models.schemas.auth import ChangedPasswordIn
 from app.models.schemas.users import User, UserDataToUpdate, UserWithRole
@@ -52,7 +52,7 @@ class AdminRepository(BaseRepository):
         return await database.fetch_one(query)
 
     async def get_all_suggestions(
-            self, user: User, common_args: dict, status: ReviewsSuggestionsStatesEnum
+        self, user: User, common_args: dict, status: ReviewsSuggestionsStatesEnum
     ):
         """Get all suggestions by status"""
         fn1 = feature_names.alias("fn1")
@@ -112,9 +112,9 @@ class AdminRepository(BaseRepository):
         return database.iterate(stmt)
 
     def apply_filters(
-            self,
-            common_args: dict,
-            query: Query,
+        self,
+        common_args: dict,
+        query: Query,
     ) -> Query:
         if common_args["start"] or common_args["end"]:
             stmt = self.paginate(query, common_args["start"], common_args["end"], False)

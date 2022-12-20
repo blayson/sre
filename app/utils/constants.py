@@ -25,5 +25,3 @@ class UserRoles(Enum):
 
 
 USER_ROLES_MAP = {UserRoles.USER: 1, UserRoles.ADMIN: 2}
-
-

@@ -89,7 +89,9 @@ class ReviewsRepository(BaseRepository):
                 reviews_suggestions.c.feature_names_id.label("suggestion_feature_name")
             ),
             selectable.append(
-                reviews_suggestions.c.old_feature_names_id.label("old_suggestion_feature_name_id")
+                reviews_suggestions.c.old_feature_names_id.label(
+                    "old_suggestion_feature_name_id"
+                )
             ),
             selectable.append(
                 reviews_suggestions.c.sentiment.label("suggestion_sentiment")

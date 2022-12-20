@@ -1,10 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.models.schemas.reviews import (
-    ProductCategories,
-    Review,
-    ReviewPage,
-)
+from app.models.schemas.reviews import ProductCategories, Review, ReviewPage
 from app.models.schemas.users import User
 from app.services.reviews import ReviewService
 from app.utils.deps import get_current_user, pagination

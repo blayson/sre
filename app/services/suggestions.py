@@ -5,9 +5,7 @@ from sqlalchemy.exc import DatabaseError
 
 from app.models.schemas.reviews import ReviewSuggestions
 from app.models.schemas.users import User
-from app.repositories.suggestions import (
-    SuggestionRepository,
-)
+from app.repositories.suggestions import SuggestionRepository
 from app.services.base import BaseService
 from app.utils.error_handlers import internal_server_error
 
@@ -38,7 +36,9 @@ class SuggestionService(BaseService):
             logger.exception("Exception during deleting suggestion %s", suggestions_id)
             raise internal_server_error from exc
 
-    async def edit_suggestions(self, suggestions_id: int, corrections: ReviewSuggestions):
+    async def edit_suggestions(
+        self, suggestions_id: int, corrections: ReviewSuggestions
+    ):
         try:
             return await self.repository.edit_suggestion(suggestions_id, corrections)
         except DatabaseError as exc:
