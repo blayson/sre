@@ -14,6 +14,7 @@ product_names = Table(
 
 product_categories = Table("product_categories", metadata)
 
+
 product_category_names = Table("product_category_names", metadata)
 
 reviews = Table(

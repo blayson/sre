@@ -89,11 +89,17 @@ class ReviewsRepository(BaseRepository):
                 reviews_suggestions.c.feature_names_id.label("suggestion_feature_name")
             ),
             selectable.append(
+                reviews_suggestions.c.old_feature_names_id.label("old_suggestion_feature_name_id")
+            ),
+            selectable.append(
                 reviews_suggestions.c.sentiment.label("suggestion_sentiment")
+            )
+            selectable.append(
+                reviews_suggestions.c.old_sentiment.label("old_suggestion_sentiment")
             )
 
         query = select(selectable).select_from(join)
-        query = self.apply_filters(common_args, query, sortable, filterable, user=user)
+        query = self._apply_filters(common_args, query, sortable, filterable, user=user)
 
         return await database.fetch_all(query)
 
@@ -108,7 +114,7 @@ class ReviewsRepository(BaseRepository):
             for feature in features_q
         }
 
-    def apply_filters(
+    def _apply_filters(
         self,
         common_args: dict,
         query: Query,

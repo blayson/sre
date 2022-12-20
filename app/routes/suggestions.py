@@ -37,3 +37,17 @@ async def delete_suggestions(
         return {"status": "Ok"}
     else:
         return {"status": "error"}
+
+
+@router.put("/{suggestions_id}/edit", dependencies=[Depends(get_current_user)])
+async def edit_suggestion(
+    suggestions_id: int,
+    corrections: ReviewSuggestions,
+    service: SuggestionService = Depends(),
+):
+    sid = await service.edit_suggestions(suggestions_id, corrections)
+
+    if sid:
+        return {"status": "Ok"}
+    else:
+        return {"status": "error"}

@@ -3,6 +3,7 @@ import logging
 from fastapi import Depends
 from sqlalchemy.exc import DatabaseError
 
+from app.models.schemas.auth import ChangedPasswordIn
 from app.models.schemas.suggestions import SuggestionForApprove
 from app.models.schemas.users import User, UserDataToUpdate, UserList
 from app.repositories.admin import AdminRepository
@@ -66,6 +67,13 @@ class AdminService(BaseService):
     async def delete_user(self, user_id: int):
         try:
             return await self.repository.delete_user(user_id)
+        except DatabaseError as exc:
+            logger.exception("Exception during deleting user %s", user_id)
+            raise internal_server_error from exc
+
+    async def change_user_password(self, user_id: int, changed_password: ChangedPasswordIn):
+        try:
+            return await self.repository.change_user_password(user_id, changed_password)
         except DatabaseError as exc:
             logger.exception("Exception during deleting user %s", user_id)
             raise internal_server_error from exc

@@ -47,19 +47,22 @@ class ReviewService(BaseService):
 
         r_list = []
         for row in rows:
+
             review_table = ReviewTable(**row)
             if (
                 common_args["status"]
                 and common_args["status"] == UserReviewState.REVIEWED.value
             ):
+                old_suggestion_sentiment = row["old_suggestion_sentiment"]
+                old_suggestion_feature_name_id = row["old_suggestion_feature_name_id"]
                 new_feature_name = None
                 if suggestion_feature_name_id := review_table.suggestion_feature_name:
                     new_feature_name = feature_names[suggestion_feature_name_id].text
                 review_table.suggestion_feature_name = SuggestionFeature(
-                    old=review_table.feature, new=new_feature_name
+                    old=feature_names[old_suggestion_feature_name_id].text if old_suggestion_feature_name_id else review_table.feature, new=new_feature_name
                 )
                 review_table.suggestion_sentiment = SuggestionSentiment(
-                    old=review_table.sentiment,
+                    old=old_suggestion_sentiment or review_table.sentiment,
                     new=review_table.suggestion_sentiment,
                 )
             r_list.append(review_table)

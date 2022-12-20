@@ -13,6 +13,7 @@ from app.models.domain.tables import (
     users,
     user_roles,
 )
+from app.models.schemas.auth import ChangedPasswordIn
 from app.models.schemas.users import User, UserDataToUpdate, UserWithRole
 from app.repositories.base import (
     BaseRepository,
@@ -51,7 +52,7 @@ class AdminRepository(BaseRepository):
         return await database.fetch_one(query)
 
     async def get_all_suggestions(
-        self, user: User, common_args: dict, status: ReviewsSuggestionsStatesEnum
+            self, user: User, common_args: dict, status: ReviewsSuggestionsStatesEnum
     ):
         """Get all suggestions by status"""
         fn1 = feature_names.alias("fn1")
@@ -111,9 +112,9 @@ class AdminRepository(BaseRepository):
         return database.iterate(stmt)
 
     def apply_filters(
-        self,
-        common_args: dict,
-        query: Query,
+            self,
+            common_args: dict,
+            query: Query,
     ) -> Query:
         if common_args["start"] or common_args["end"]:
             stmt = self.paginate(query, common_args["start"], common_args["end"], False)
@@ -154,7 +155,6 @@ class AdminRepository(BaseRepository):
         if feature_names_id is not None:
             stmt = stmt.values(feature_names_id=feature_names_id)
 
-        logger.debug(stmt)
         await database.execute(stmt)
 
         stmt = (
@@ -192,7 +192,7 @@ class AdminRepository(BaseRepository):
             stmt = stmt.values(name=user_data.name)
         if user_data.email:
             stmt = stmt.values(email=user_data.email)
-        if user_data.user_role and user_data.user_role in ("admin", "user"):
+        if user_data.user_role:
             stmt = stmt.values(user_roles_id=USER_ROLES_MAP[user_data.user_role])
 
         stmt = stmt.returning(users.c.users_id)
@@ -220,5 +220,15 @@ class AdminRepository(BaseRepository):
 
         stmt = (
             delete(users).where(users.c.users_id == user_id).returning(users.c.users_id)
+        )
+        return await database.fetch_val(stmt)
+
+    @staticmethod
+    async def change_user_password(user_id: int, changed_password: ChangedPasswordIn):
+        stmt = (
+            update(users)
+            .where(user_id == users.c.users_id)
+            .values(password=changed_password.password)
+            .returning(users.c.users_id)
         )
         return await database.fetch_val(stmt)

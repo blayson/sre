@@ -37,3 +37,10 @@ class SuggestionService(BaseService):
         except DatabaseError as exc:
             logger.exception("Exception during deleting suggestion %s", suggestions_id)
             raise internal_server_error from exc
+
+    async def edit_suggestions(self, suggestions_id: int, corrections: ReviewSuggestions):
+        try:
+            return await self.repository.edit_suggestion(suggestions_id, corrections)
+        except DatabaseError as exc:
+            logger.exception("Exception during editing suggestion %s", suggestions_id)
+            raise internal_server_error from exc

@@ -62,12 +62,12 @@ class ReviewProduct(Review):
 
 
 class SuggestionSentiment(BaseSchema):
-    old: str
+    old: Optional[str]
     new: Optional[str]
 
 
 class SuggestionFeature(BaseSchema):
-    old: str
+    old: Optional[str]
     new: Optional[str]
 
 

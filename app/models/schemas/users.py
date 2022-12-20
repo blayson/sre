@@ -35,7 +35,7 @@ class UserList(BaseSchemaORM):
 class UserInRegister(BaseUserORM):
     password: str
     registered: datetime = None
-    user_role: UserRoles = UserRoles.USER.value
+    user_role: UserRoles = UserRoles.USER
 
     _not_empty = validator("name", "email", allow_reuse=True, pre=True, always=True)(
         not_empty
@@ -62,7 +62,7 @@ class UserInRegister(BaseUserORM):
 class UserDataToUpdate(BaseSchema):
     name: Optional[str] = None
     email: Optional[str] = None
-    user_role: Optional[str] = None
+    user_role: Optional[UserRoles] = None
 
     @root_validator()
     def check_at_least_one(cls, values):

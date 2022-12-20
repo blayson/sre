@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 
+from app.models.schemas.auth import ChangedPasswordIn
 from app.models.schemas.suggestions import SuggestionsForApprove
 from app.models.schemas.users import User, UserDataToUpdate, UserList
 from app.services.admin import AdminService
@@ -42,12 +43,14 @@ async def delete_user(
         return {"status": "error"}
 
 
-@router.put("/users/{user_id}/update")
+@router.put(
+    "/users/{user_id}/update",
+    dependencies=[Depends(get_current_admin_user)],
+)
 async def update_user(
     user_id: int,
     user_data_to_update: UserDataToUpdate,
     service: AdminService = Depends(),
-    current_user: User = Depends(get_current_admin_user),
 ):
     uid = await service.update_user(user_id, user_data_to_update)
     if uid:
@@ -100,3 +103,19 @@ async def get_suggestions(
     resp = {"data": data, "total": total}
     propagate_args(common_args, resp)
     return resp
+
+
+@router.put(
+    "/users/{users_id}/changePassword",
+    dependencies=[Depends(get_current_admin_user)],
+)
+async def change_user_password(
+    users_id: int,
+    changed_password: ChangedPasswordIn,
+    service: AdminService = Depends(),
+):
+    uid = await service.change_user_password(users_id, changed_password)
+    if uid:
+        return {"status": "Ok"}
+    else:
+        return {"status": "error"}
