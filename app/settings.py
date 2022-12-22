@@ -1,4 +1,9 @@
+import os
+
 from pydantic import BaseSettings
+
+
+
 
 
 class Settings(BaseSettings):
@@ -19,7 +24,13 @@ class Settings(BaseSettings):
     debug = True
 
 
+uri = os.getenv("DATABASE_URL")
+if uri and uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+
 settings = Settings(
     _env_file=".env",
     _env_file_encoding="utf-8",
 )
+settings.database_url = uri
