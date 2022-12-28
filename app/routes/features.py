@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 from app.models.schemas.features import FeatureNamesResponse
 from app.services.features import FeaturesService
 from app.utils.constants import LanguagesQueryParameter
+from app.utils.deps import get_current_user
 
 router = APIRouter()
 

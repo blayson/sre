@@ -13,7 +13,6 @@ router = APIRouter()
     "",
     response_model=ReviewPage,
     response_model_exclude_unset=True,
-    dependencies=[Depends(get_current_user)],
 )
 async def get_reviews(
     commons: dict = Depends(pagination),
