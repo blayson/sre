@@ -1,6 +1,7 @@
 import uvicorn
 
 from .settings import settings
+
 #
 # uvicorn.run(
 #     "app.main:app",

@@ -9,7 +9,12 @@ from app.utils.utils import propagate_args
 router = APIRouter()
 
 
-@router.get("", response_model=ReviewPage, response_model_exclude_unset=True)
+@router.get(
+    "",
+    response_model=ReviewPage,
+    response_model_exclude_unset=True,
+    dependencies=[Depends(get_current_user)],
+)
 async def get_reviews(
     commons: dict = Depends(pagination),
     service: ReviewService = Depends(),
@@ -21,11 +26,17 @@ async def get_reviews(
     return result
 
 
-@router.get("/categories", response_model=ProductCategories)
+@router.get(
+    "/categories",
+    response_model=ProductCategories,
+    dependencies=[Depends(get_current_user)],
+)
 async def get_categories(service: ReviewService = Depends()):
     return await service.get_categories()
 
 
-@router.get("/{review_id}", response_model=Review)
+@router.get(
+    "/{review_id}", response_model=Review, dependencies=[Depends(get_current_user)]
+)
 async def get_review(review_id: int, service: ReviewService = Depends()):
     return await service.get_review_by_id(review_id)

@@ -3,9 +3,6 @@ import os
 from pydantic import BaseSettings
 
 
-
-
-
 class Settings(BaseSettings):
     server_host: str = "127.0.0.1"
     server_port: int = 8000
@@ -24,7 +21,7 @@ class Settings(BaseSettings):
     debug = True
 
 
-uri = os.getenv("DATABASE_URL")
+uri = os.getenv("DATABASE_URL", "postgresql://postgres:docker@localhost:7090/mta")
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 

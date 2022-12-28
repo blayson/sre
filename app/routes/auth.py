@@ -1,4 +1,3 @@
-from databases import Database
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
@@ -6,7 +5,6 @@ from starlette import status
 from app.models.schemas.auth import Token
 from app.models.schemas.users import UserInRegister
 from app.services.auth import AuthService
-from app.utils.db import get_db
 
 router = APIRouter()
 
