@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     debug = True
 
 
-uri = os.getenv("DATABASE_URL", "postgresql://postgres:docker@localhost:7090/mta")
+uri = os.getenv("DATABASE_URL")
 if uri and uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
